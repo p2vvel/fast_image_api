@@ -1,16 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.security import OAuth2PasswordRequestForm
-from api.auth import crud, schemas
+from api.auth import crud, schemas, models
 from api.database import get_db
 from sqlalchemy.orm import Session
+from api.auth.crud import get_current_user
 
 
 router = APIRouter()
 
 
 @router.get("/test")
-def testt():
-    return "TESTTEST"
+def testt(user: models.User | None = Depends(get_current_user)):
+    if user:
+        return f"Hi, {user.username}!"
+    else:
+        return f"Hi, stranger!"
 
 
 @router.get("/users")

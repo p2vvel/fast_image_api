@@ -1,15 +1,16 @@
-from fastapi import HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-import datetime
-
+from api.database import get_db
 from api.auth import models, schemas
 import api.config as config
 import jwt
+import datetime
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 
 def get_users(db: Session) -> list[models.User]:
@@ -49,22 +50,33 @@ def user_login(user: OAuth2PasswordRequestForm, db: Session) -> models.User:
         if pwd_context.verify(user.password, user_db.password):
             return user_db
         else:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong password")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong password")
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"User '{user.username}' not existing")
 
 
-# TODO: token return
 def generate_token(user: schemas.UserBase, db: Session, time_delta: datetime.timedelta = datetime.timedelta(minutes=15)) -> schemas.Token:
     expiration_time = (datetime.datetime.utcnow() + time_delta).timestamp()
-    
-    x = 1
     payload = {
         "sub": user.username,
         "iss": expiration_time,
     }
 
     token = jwt.encode(payload, config.SECRET, algorithm=config.ALGORITHM)
-
     return schemas.Token(active_token=token, expires=expiration_time)
+
+
+def get_current_user(token: str = Depends(oauth_scheme), db: Session = Depends(get_db)) -> models.User | None:
+    if token:
+        payload = jwt.decode(
+            token,
+            config.SECRET,
+            algorithms=[config.ALGORITHM]
+        )
+        username = payload.get("sub")
+        user = get_user_by_username(username, db)
+        return user
+    else:
+        return None

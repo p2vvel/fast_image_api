@@ -18,8 +18,3 @@ class UserInDB(UserForm):
 
 class UserResponse(UserBase):
     active: bool
-
-class Token(BaseModel):
-    active_token: str
-    token_type: str = "bearer"
-    expires: int

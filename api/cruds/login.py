@@ -1,45 +1,14 @@
 from fastapi import HTTPException, status, Depends
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from api.database import get_db
-from api.auth import models, schemas
-import api.config as config
-import jwt
 import datetime
+import jwt
 
+from ..database import get_db
+from ..utils.crypto import pwd_context, oauth_scheme
+from .. import schemas, models, config
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
-
-
-def get_users(db: Session) -> list[models.User]:
-    users = db.query(models.User).all()
-    return users
-
-
-def get_user_by_username(username: str, db: Session) -> models.User:
-    user_db = db.query(models.User).filter(
-        models.User.username == username).first()
-    if user_db:
-        return user_db
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
-
-def create_user(user: schemas.UserForm, db: Session) -> models.User:
-    hashed_password = pwd_context.hash(user.password)
-    user_db = models.User(username=user.username, password=hashed_password)
-    db.add(user_db)
-    db.commit()
-    db.refresh(user_db)
-    return user_db
-
-
-def delete_user(username: str, db: Session) -> None:
-    user_db = get_user_by_username(username, db)
-    db.delete(user_db)
-    db.commit()
+from ..cruds.user import get_user_by_username
 
 
 def user_login(user: OAuth2PasswordRequestForm, db: Session) -> models.User:

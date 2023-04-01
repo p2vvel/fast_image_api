@@ -1,22 +1,21 @@
+from .database import Base, engine
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from api.images.main import router as image_router
-from api.auth.main import router as auth_router
+
+from .routers import auth_router, image_router
+
 
 app = FastAPI()
 # server static files
 app.mount("/static", StaticFiles(directory="./images"), name="static")
 app.mount("/auth", auth_router)
+app.mount("/images", image_router)
 
 
 # make all migrations
-from api.database import Base, engine
 Base.metadata.create_all(bind=engine)
 
 
-
-
-
 @app.get("/")
-def foo():
-    return "ASD"
+def root():
+    return "Hello!"

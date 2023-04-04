@@ -13,14 +13,20 @@ if not os.path.exists("./images"):
     os.mkdir("./images")
 
 app.mount("/static", StaticFiles(directory="./images"), name="static")
-app.mount("/auth", auth_router)
-app.mount("/images", image_router)
+app.include_router(auth_router, prefix="/auth")
+app.include_router(image_router, prefix="/images")
 
 
 # make all migrations
 Base.metadata.create_all(bind=engine)
 
 
+from fastapi import Depends
+from sqlalchemy.orm import Session
+from .database import get_db
+
 @app.get("/")
-def root():
+def root(db: Session = Depends(get_db)):
     return "Hello!"
+
+

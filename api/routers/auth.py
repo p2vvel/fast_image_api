@@ -9,14 +9,14 @@ from ..models import user as user_models
 
 
 from ..cruds import user as user_crud, login as auth_crud
-from ..cruds.login import get_current_user
+from ..dependencies.auth import get_user
 
 
 router = APIRouter()
 
 
 @router.get("/test")
-def test(user: user_models.User | None = Depends(get_current_user)):
+def test(user: user_models.User | None = Depends(get_user)):
     if user:
         return f"Hi, {user.username}!"
     else:

@@ -8,7 +8,6 @@ from ..database import get_db
 from ..utils.crypto import pwd_context, oauth_scheme
 from .. import schemas, models, config
 
-from ..cruds.user import get_user_by_username
 
 
 def user_login(user: OAuth2PasswordRequestForm, db: Session) -> models.User:
@@ -37,15 +36,3 @@ def generate_token(user: schemas.UserBase, db: Session, time_delta: datetime.tim
     return schemas.Token(active_token=token, expires=expiration_time)
 
 
-def get_current_user(token: str = Depends(oauth_scheme), db: Session = Depends(get_db)) -> models.User | None:
-    if token:
-        payload = jwt.decode(
-            token,
-            config.SECRET,
-            algorithms=[config.ALGORITHM]
-        )
-        username = payload.get("sub")
-        user = get_user_by_username(username, db)
-        return user
-    else:
-        return None

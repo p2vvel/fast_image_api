@@ -9,24 +9,22 @@ from ..models import user as user_models
 
 
 from ..cruds import user as user_crud, login as auth_crud
-from ..dependencies.auth import get_user
+from ..dependencies.auth import get_user, get_user_or_401
 
 
 router = APIRouter()
 
 
-@router.get("/test")
-def test(user: user_models.User | None = Depends(get_user)):
-    if user:
-        return f"Hi, {user.username}!"
-    else:
-        return f"Hi, stranger!"
-
-
 @router.get("/users")
-def get_users(db: Session = Depends(get_db)) -> list[schemas.UserResponse]:
-    all_users = user_crud.get_users(db)
-    return all_users
+def get_users(db: Session = Depends(get_db), user: schemas.UserInDB = Depends(get_user_or_401)) -> list[schemas.UserResponse]:
+    if user.is_superuser:
+        # admin can get all users
+        user = user_crud.get_users(db)
+        return user
+    else:
+        # normal users can only fetch itself
+        user = [user_crud.get_user_by_username(user.username, db)]
+        return user
 
 
 @router.post("/users")

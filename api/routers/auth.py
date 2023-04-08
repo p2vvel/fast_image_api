@@ -11,7 +11,6 @@ from ..models import user as user_models
 from ..cruds import user as user_crud, login as auth_crud
 from ..dependencies.auth import get_user, get_user_or_401
 
-
 router = APIRouter()
 
 
@@ -25,6 +24,15 @@ def get_users(db: Session = Depends(get_db), user: schemas.UserInDB = Depends(ge
         # normal users can only fetch itself
         user = [user_crud.get_user_by_username(user.username, db)]
         return user
+    
+
+@router.get("/users/{username}")
+def get_users(username: str, db: Session = Depends(get_db), user: schemas.UserInDB = Depends(get_user_or_401)) -> schemas.UserResponse:
+    if user.is_superuser or user.username == username:
+        user = user_crud.get_user_by_username(username, db)
+        return user
+    else:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 @router.post("/users")
@@ -33,10 +41,13 @@ def create_user(user: schemas.UserForm, db: Session = Depends(get_db)) -> schema
     return new_user
 
 
-@router.delete("/users")
-def delete_user(username: str = Body(embed=True), db: Session = Depends(get_db)):
-    user_crud.delete_user(username, db)
-    raise HTTPException(status_code=status.HTTP_200_OK)
+@router.delete("/users/{username}")
+def delete_user(username: str, db: Session = Depends(get_db), user: schemas.UserInDB = Depends(get_user_or_401)):
+    if user.is_superuser or user.username == username:
+        user_crud.delete_user(username, db)
+        raise HTTPException(status_code=status.HTTP_200_OK)
+    else:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 @router.post("/login")

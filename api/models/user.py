@@ -1,18 +1,18 @@
-from sqlalchemy import Column, String, Integer, Boolean, DateTime
+from sqlalchemy.orm import mapped_column, relationship, Mapped
 from api.database import Base
-import datetime
+from datetime import datetime
 
 
 class User(Base):
     __tablename__ = "Users"
 
-    id = Column(Integer, primary_key=True, nullable=False)
-    username = Column(String, nullable=False, unique=True)
-    password = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
-    is_superuser = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.datetime.now)
-    updated_at = Column(DateTime, default=datetime.datetime.now)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(unique=True)
+    password: Mapped[str]
+    is_active: Mapped[bool] = mapped_column(default=True)
+    is_superuser: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now())
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.now())
 
     def __repr__(self):
         return f"<User: '{self.username}'>"

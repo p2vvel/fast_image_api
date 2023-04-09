@@ -4,6 +4,7 @@ from .. import models
 from ..database import get_db
 from ..dependencies.auth import get_user
 import datetime
+import time
 
 
 app.dependency_overrides[get_db] = override_get_db
@@ -86,7 +87,6 @@ def test_user_fetch(clean_db):
     assert response.status_code == 200
     assert response.json().get("username") == "pawel"
 
-
     response = client.get("/auth/users/pawel", headers=auth_header("admin"))
     assert response.status_code == 200
     assert response.json().get("username") == "pawel"
@@ -102,12 +102,12 @@ def test_user_delete(clean_db):
     db = next(override_get_db())
     all_users = lambda: db.query(models.User).all()
 
-    assert len(all_users()) == 2    # 2 users in db
+    assert len(all_users()) == 2  # 2 users in db
     response = client.delete("/auth/users/pawel", headers=auth_header("pawel"))
     assert response.status_code == 200
-    assert len(all_users()) == 1    # 1 user in db, 'pawel' has been killed
-    
-    pawel = create_user("pawel")    # create another 'pawel'
+    assert len(all_users()) == 1  # 1 user in db, 'pawel' has been killed
+
+    pawel = create_user("pawel")  # create another 'pawel'
     response = client.delete("/auth/users/admin", headers=auth_header("pawel"))
     assert response.status_code == 401
 
@@ -117,4 +117,118 @@ def test_user_delete(clean_db):
     response = client.delete("/auth/users/admin", headers=auth_header("admin"))
     assert response.status_code == 200
 
-    assert len(all_users()) == 0    # all users have been deleted
+    assert len(all_users()) == 0  # all users have been deleted
+
+
+def test_standard_user_update(clean_db):
+    db = next(override_get_db())
+    username = "pawel"
+    user = create_user(username, "1234")
+    new_data = {
+        "password": "new password",
+        "is_active": False,
+        "is_superuser": True,
+    }
+    get_user = lambda: db.query(models.User).filter(models.User.username == username).first()
+
+    # converting to dict to prevent from querying db after update, thus getting already updated data
+    old_user_data = get_user().__dict__
+    response = client.patch(
+        f"/auth/users/{username}", headers=auth_header(username), json=new_data
+    )
+    assert response.status_code == 200
+    new_standard_user = get_user()
+
+    # password can be changed by user
+    assert old_user_data["password"] != new_standard_user.password
+    # 'standard' user can only change password
+    assert old_user_data["is_active"] == new_standard_user.is_active
+    assert old_user_data["is_superuser"] == new_standard_user.is_superuser
+
+
+def test_standard_user_update_unauthorized(clean_db):
+    db = next(override_get_db())
+    username = "pawel"
+    user = create_user(username, "1234")
+    new_data = {
+        "password": "new password",
+        "is_active": False,
+        "is_superuser": True,
+    }
+    get_user = lambda: db.query(models.User).filter(models.User.username == username).first()
+
+    # converting to dict to prevent from querying db after update, thus getting already updated data
+    old_user_data = get_user().__dict__
+    response = client.patch(f"/auth/users/{username}", json=new_data)
+    assert response.status_code == 401
+    new_standard_user = get_user()
+    # no changes:
+    assert old_user_data["password"] == new_standard_user.password
+    assert old_user_data["is_active"] == new_standard_user.is_active
+    assert old_user_data["is_superuser"] == new_standard_user.is_superuser
+
+
+def test_standard_user_update_other_user(clean_db):
+    db = next(override_get_db())
+    username = "pawel"
+    username_2 = "kamilek"
+    user = create_user(username, "1234")
+    user2 = create_user(username_2, "1234")
+    new_data = {
+        "password": "new password",
+        "is_active": False,
+        "is_superuser": True,
+    }
+    get_user = lambda: db.query(models.User).filter(models.User.username == username).first()
+
+    # converting to dict to prevent from querying db after update, thus getting already updated data
+    old_user_data = get_user().__dict__
+    response = client.patch(
+        f"/auth/users/{username}", headers=auth_header(username_2), json=new_data
+    )
+    assert response.status_code == 401
+    new_standard_user = get_user()
+    # no changes
+    assert old_user_data["password"] == new_standard_user.password
+    assert old_user_data["is_active"] == new_standard_user.is_active
+    assert old_user_data["is_superuser"] == new_standard_user.is_superuser
+
+
+def test_superuser_update(clean_db):
+    db = next(override_get_db())
+    username = "pawel"
+    user = create_user(username, "1234")
+    superuser = create_user("admin", "1234", is_superuser=True)
+    new_data = {
+        "password": "new password",
+        "is_active": False,
+        "is_superuser": True,
+    }
+    get_user = lambda: db.query(models.User).filter(models.User.username == username).first()
+
+    # converting to dict to prevent from querying db after update, thus getting already updated data
+    old_user_data = get_user().__dict__
+    response = client.patch(f"/auth/users/{username}", headers=auth_header("admin"), json=new_data)
+    assert response.status_code == 200
+    new_standard_user = get_user()
+
+    # superuser can change everything
+    assert old_user_data["password"] != new_standard_user.password
+    assert old_user_data["is_active"] != new_standard_user.is_active
+    assert old_user_data["is_superuser"] != new_standard_user.is_superuser
+
+
+def test_updated_at_change(clean_db):
+    pawel = create_user("pawel", "1234")
+
+    response = client.get("/auth/users/pawel", headers=auth_header("pawel"))
+    assert response.status_code == 200
+    old_updated_at = datetime.datetime.fromisoformat(response.json().get("updated_at"))
+    
+    time.sleep(1)  # wait 1 second to show difference
+
+    response = client.patch("/auth/users/pawel", headers=auth_header("pawel"), json={"password": "123"})
+    assert response.status_code == 200
+    new_updated_at = datetime.datetime.fromisoformat(response.json().get("updated_at"))
+
+    assert new_updated_at - old_updated_at > datetime.timedelta(seconds=1)

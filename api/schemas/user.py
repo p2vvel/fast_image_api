@@ -29,3 +29,9 @@ class UserResponse(UserBase):
     # TODO: decide if created_at and updated_at should be sent in response
     created_at: datetime.datetime       
     updated_at: datetime.datetime
+
+
+class UserUpdateForm(BaseModel):
+    password: str | None = None
+    is_active: bool | None = None
+    is_superuser: bool | None = None

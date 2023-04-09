@@ -10,7 +10,7 @@ from ..database import Base, get_db
 from ..cruds.user import get_user_by_username
 from ..utils.crypto import oauth_scheme
 from ..main import app
-
+from ..utils.crypto import pwd_context
 
 engine = create_engine(config.TEST_DB_URL, connect_args={"check_same_thread": False})
 testing_local_session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -59,9 +59,10 @@ def create_user(
     Creates new user and returns with given parameters,
     for testing purposes only
     """
+    hashed_password = pwd_context.hash(password)    # used passwords' hashes as always
     db = next(override_get_db())
     new_user = models.User(
-        username=username, password=password, is_superuser=is_superuser, is_active=is_active
+        username=username, password=hashed_password, is_superuser=is_superuser, is_active=is_active
     )
     db.add(new_user)
     db.commit()
@@ -84,6 +85,6 @@ def generate_token(username: str, *, expiration_time: timedelta = timedelta(minu
 
 def auth_header(token: str) -> dict[str, str]:
     """
-    Return header with 'Authorization: Bearer <token>' section 
+    Return header with 'Authorization: Bearer <token>' section
     """
     return {"Authorization": f"Bearer {token}"}

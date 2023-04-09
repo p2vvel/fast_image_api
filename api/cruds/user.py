@@ -2,9 +2,11 @@ from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+import datetime
 
 from ..models import user as user_models
-from ..schemas.user import UserForm
+from ..schemas.user import UserForm, UserUpdateForm
+
 
 from ..utils.crypto import pwd_context
 
@@ -40,6 +42,21 @@ def create_user(user: UserForm, db: Session) -> user_models.User:
     else:
         # username has been used preiously
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username already exists")
+
+
+def update_user(username: str, new_data: UserUpdateForm, db: Session) -> user_models.User:
+    user_query = db.query(user_models.User).filter(user_models.User.username == username)   # get user instances by now
+
+    # raise 404 if there are no users with such nicknames
+    if len(user_query.all()) == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        new_data_dict = new_data.dict(exclude_unset=True)
+        new_data_dict["updated_at"] = datetime.datetime.now()
+        user_query.update(new_data_dict)
+        db.commit()
+        updated_user = user_query.first()
+        return updated_user
 
 
 def delete_user(username: str, db: Session) -> None:

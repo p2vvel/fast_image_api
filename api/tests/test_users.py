@@ -13,7 +13,7 @@ client = TestClient(app)
 
 
 def test_user_create(clean_db):
-    response = client.post("/auth/users", json={"username": "pawel", "password": "1234"})
+    response = client.post("/users", json={"username": "pawel", "password": "1234"})
     assert response.status_code == 200
 
     json = response.json()
@@ -34,19 +34,19 @@ def test_user_create(clean_db):
 
 def test_create_user_wrong_input(clean_db):
     # normal user creation
-    response = client.post("/auth/users", json={"username": "pawel", "password": "1234"})
+    response = client.post("/users", json={"username": "pawel", "password": "1234"})
     assert response.status_code == 200
 
     # create duplicated username
-    response = client.post("/auth/users", json={"username": "pawel", "password": "1234"})
+    response = client.post("/users", json={"username": "pawel", "password": "1234"})
     assert response.status_code == 409  # endpoint should return 409 (duplicate)
 
     # create user without password
-    response = client.post("/auth/users", json={"username": "pawel2"})
+    response = client.post("/users", json={"username": "pawel2"})
     assert response.status_code == 422
 
     # create user without username
-    response = client.post("/auth/users", json={"username": "pawel3"})
+    response = client.post("/users", json={"username": "pawel3"})
     assert response.status_code == 422
 
     db = next(override_get_db())  # get db to test its content
@@ -60,15 +60,15 @@ def test_all_user_fetch(clean_db):
     kamilek = create_user("kamilek")
 
     # check anonymous user
-    response = client.get("/auth/users")
+    response = client.get("/users")
     assert response.status_code == 401  # endpoint not availabe
 
-    response = client.get("/auth/users", headers=auth_header("pawel"))
+    response = client.get("/users", headers=auth_header("pawel"))
     assert response.status_code == 200
     assert len(response.json()) == 1  # only one user
     assert response.json()[0]["username"] == "pawel"  # 'pawel' alone
 
-    response = client.get("/auth/users", headers=auth_header("admin"))
+    response = client.get("/users", headers=auth_header("admin"))
     assert response.status_code == 200
     assert len(response.json()) == 3  # all users
     # sets comparisions is easier because they are unordered:
@@ -79,19 +79,19 @@ def test_user_fetch(clean_db):
     pawel = create_user("pawel")
     admin = create_user("admin", is_superuser=True)
 
-    response = client.get("/auth/users/pawel")
+    response = client.get("/users/pawel")
     assert response.status_code == 401
-    response = client.get("/auth/users/admin", headers=auth_header("pawel"))
+    response = client.get("/users/admin", headers=auth_header("pawel"))
     assert response.status_code == 401
-    response = client.get("/auth/users/pawel", headers=auth_header("pawel"))
+    response = client.get("/users/pawel", headers=auth_header("pawel"))
     assert response.status_code == 200
     assert response.json().get("username") == "pawel"
 
-    response = client.get("/auth/users/pawel", headers=auth_header("admin"))
+    response = client.get("/users/pawel", headers=auth_header("admin"))
     assert response.status_code == 200
     assert response.json().get("username") == "pawel"
 
-    response = client.get("/auth/users/admin", headers=auth_header("admin"))
+    response = client.get("/users/admin", headers=auth_header("admin"))
     assert response.status_code == 200
     assert response.json().get("username") == "admin"
 
@@ -103,18 +103,18 @@ def test_user_delete(clean_db):
     all_users = lambda: db.query(models.User).all()
 
     assert len(all_users()) == 2  # 2 users in db
-    response = client.delete("/auth/users/pawel", headers=auth_header("pawel"))
+    response = client.delete("/users/pawel", headers=auth_header("pawel"))
     assert response.status_code == 200
     assert len(all_users()) == 1  # 1 user in db, 'pawel' has been killed
 
     pawel = create_user("pawel")  # create another 'pawel'
-    response = client.delete("/auth/users/admin", headers=auth_header("pawel"))
+    response = client.delete("/users/admin", headers=auth_header("pawel"))
     assert response.status_code == 401
 
     # admin can delete everything
-    response = client.delete("/auth/users/pawel", headers=auth_header("admin"))
+    response = client.delete("/users/pawel", headers=auth_header("admin"))
     assert response.status_code == 200
-    response = client.delete("/auth/users/admin", headers=auth_header("admin"))
+    response = client.delete("/users/admin", headers=auth_header("admin"))
     assert response.status_code == 200
 
     assert len(all_users()) == 0  # all users have been deleted
@@ -134,7 +134,7 @@ def test_standard_user_update(clean_db):
     # converting to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__
     response = client.patch(
-        f"/auth/users/{username}", headers=auth_header(username), json=new_data
+        f"/users/{username}", headers=auth_header(username), json=new_data
     )
     assert response.status_code == 200
     new_standard_user = get_user()
@@ -159,7 +159,7 @@ def test_standard_user_update_unauthorized(clean_db):
 
     # converting to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__
-    response = client.patch(f"/auth/users/{username}", json=new_data)
+    response = client.patch(f"/users/{username}", json=new_data)
     assert response.status_code == 401
     new_standard_user = get_user()
     # no changes:
@@ -184,7 +184,7 @@ def test_standard_user_update_other_user(clean_db):
     # converting to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__
     response = client.patch(
-        f"/auth/users/{username}", headers=auth_header(username_2), json=new_data
+        f"/users/{username}", headers=auth_header(username_2), json=new_data
     )
     assert response.status_code == 401
     new_standard_user = get_user()
@@ -208,7 +208,7 @@ def test_superuser_update(clean_db):
 
     # converting to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__
-    response = client.patch(f"/auth/users/{username}", headers=auth_header("admin"), json=new_data)
+    response = client.patch(f"/users/{username}", headers=auth_header("admin"), json=new_data)
     assert response.status_code == 200
     new_standard_user = get_user()
 
@@ -221,13 +221,13 @@ def test_superuser_update(clean_db):
 def test_updated_at_change(clean_db):
     pawel = create_user("pawel", "1234")
 
-    response = client.get("/auth/users/pawel", headers=auth_header("pawel"))
+    response = client.get("/users/pawel", headers=auth_header("pawel"))
     assert response.status_code == 200
     old_updated_at = datetime.datetime.fromisoformat(response.json().get("updated_at"))
     
     time.sleep(1)  # wait 1 second to show difference
 
-    response = client.patch("/auth/users/pawel", headers=auth_header("pawel"), json={"password": "123"})
+    response = client.patch("/users/pawel", headers=auth_header("pawel"), json={"password": "123"})
     assert response.status_code == 200
     new_updated_at = datetime.datetime.fromisoformat(response.json().get("updated_at"))
 

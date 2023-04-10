@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound, IntegrityError
 from sqlalchemy import select
 import datetime
 
@@ -28,18 +28,17 @@ def get_user_by_username(username: str, db: Session, *, raise_exception=True) ->
 
 
 def create_user(user: UserForm, db: Session) -> User:
-    existing_user = get_user_by_username(user.username, db, raise_exception=False)
-    # check if username hasn't already been used
-    if existing_user is None:
-        hashed_password = pwd_context.hash(user.password)
-        user_db = User(username=user.username, password=hashed_password)
-        db.add(user_db)
+    hashed_password = pwd_context.hash(user.password)
+    new_user = User(username=user.username, password=hashed_password)
+    try:
+        db.add(new_user)
         db.commit()
-        db.refresh(user_db)
-        return user_db
-    else:
-        # username has been used preiously
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username already exists")
+        db.refresh(new_user)
+        return new_user
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail=f"User '{user.username}' already exists"
+        )
 
 
 def update_user(username: str, new_data: UserUpdateForm, db: Session) -> User:

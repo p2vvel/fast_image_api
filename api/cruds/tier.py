@@ -10,8 +10,8 @@ from ..models import Tier
 
 
 def create_tier(tier: TierForm, db: Session) -> Tier:
+    new_tier = Tier(**tier.dict())
     try: 
-        new_tier = Tier(**tier.dict())
         db.add(new_tier)
         db.commit()
         db.refresh(new_tier)

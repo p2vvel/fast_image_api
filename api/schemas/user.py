@@ -19,15 +19,17 @@ class UserInDB(UserForm):
     is_superuser: bool
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    # tier: str
 
 
 class UserResponse(UserBase):
-    '''Same as UserInDB but without password'''
+    """Same as UserInDB but without password"""
+
     id: int
     is_active: bool
     is_superuser: bool
     # TODO: decide if created_at and updated_at should be sent in response
-    created_at: datetime.datetime       
+    created_at: datetime.datetime
     updated_at: datetime.datetime
 
 

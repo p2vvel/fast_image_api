@@ -22,7 +22,7 @@ def test_user_create(clean_db):
     # there should be no password sent in response
     assert "password" not in json
     # TODO: is it good idea to test it? might be dependable on db engine
-    assert json.get("id") == 1
+    assert isinstance(json.get("id"), int)
     # creation and update times should be equal at the creation
     # moment, although there are some minor differences in
     # miliseconds due to default values being taken separately

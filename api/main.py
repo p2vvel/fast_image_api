@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 from .database import Base, engine
-from .routers import auth_router, images_router, users_router
+from .routers import auth_router, images_router, users_router, tiers_router
 
 
 app = FastAPI()
@@ -16,6 +16,7 @@ app.mount("/static", StaticFiles(directory="./images"), name="static")
 app.include_router(auth_router, prefix="/auth")
 app.include_router(users_router, prefix="/users")
 app.include_router(images_router, prefix="/images")
+app.include_router(tiers_router, prefix="/tiers")
 
 
 # make all migrations

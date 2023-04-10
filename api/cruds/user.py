@@ -18,7 +18,7 @@ def get_users(db: Session) -> list[User]:
 
 def get_user_by_username(username: str, db: Session, *, raise_exception=True) -> User:
     try:
-        user_db = db.scalars(select(User).where(User.username == username)).one()
+        user_db = db.scalar(select(User).where(User.username == username))
         return user_db
     except NoResultFound:
         if raise_exception:
@@ -43,7 +43,7 @@ def create_user(user: UserForm, db: Session) -> User:
 
 def update_user(username: str, new_data: UserUpdateForm, db: Session) -> User:
     try:
-        user = db.scalars(select(User).where(User.username == username)).one()
+        user = db.scalar(select(User).where(User.username == username))
         new_data_dict = new_data.dict(exclude_unset=True)
         for key in new_data_dict:
             setattr(user, key, new_data_dict[key])

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from datetime import datetime
 
 class TierBase(BaseModel):
     name: str
@@ -12,6 +12,7 @@ class TierBase(BaseModel):
 
 class TierInDB(TierBase):
     id: int
+    created_at: datetime
 
 
 class TierForm(TierBase):

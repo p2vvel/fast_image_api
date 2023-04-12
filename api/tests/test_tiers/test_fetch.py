@@ -21,7 +21,7 @@ def test_fetch_all_permissions(clean_db):
     assert response.status_code == 401
     # 'standard' users don't have an access
     response = client.get("/tiers", headers=auth_header(username))
-    assert response.status_code == 401
+    assert response.status_code == 200
 
 
 def test_fetch_permissions(clean_db):
@@ -38,26 +38,47 @@ def test_fetch_permissions(clean_db):
     assert response.status_code == 401
     # 'standard' users don't have an access
     response = client.get("/tiers/abc", headers=auth_header(username))
-    assert response.status_code == 401
+    assert response.status_code == 200
 
 
-def test_fetch(clean_db):
-    db = next(override_get_db())
+def test_fetch_admin(clean_db):
+    # db = next(override_get_db())
     create_user("admin", is_superuser=True)
     header = auth_header("admin")
-    then = datetime.datetime.now()
     input = {"name": "abc", "original_image": False, "transform": False}
-    tier = models.Tier(**input)
-    db.add(tier)
-    db.commit()
-    db.refresh(tier)
 
-    response = client.get("/tiers/abc", headers=header)
-    assert response.status_code == 200
-    json = response.json()
-    assert set(json.keys()) == {"id", "name", "original_image", "transform", "created_at"}
-    for key in input:
-        assert input[key] == json[key]
-    assert isinstance(json["id"], int)
-    created_at = datetime.datetime.fromisoformat(json["created_at"])
-    assert then - created_at < datetime.timedelta(seconds=5)
+    create_response = client.post(url="/tiers", headers=header, json=input)
+    assert create_response.status_code == 200
+
+    response_one = client.get("/tiers/abc", headers=header)
+    assert response_one.status_code == 200
+    assert (
+        create_response.json() == response_one.json()
+    )  # create endpoint is already checked and they (should) return the same data
+
+    response_all = client.get("/tiers", headers=header)
+    assert response_all.status_code == 200
+    assert [create_response.json()] == response_all.json()
+
+
+def test_fetch_standard_user(clean_db):
+    # db = next(override_get_db())
+    create_user("pawel")
+    create_user("admin", is_superuser=True)
+
+    admin_header = auth_header("admin")
+    pawel_header = auth_header("pawel")
+    input = {"name": "abc", "original_image": False, "transform": False}
+
+    create_response = client.post(url="/tiers", headers=admin_header, json=input)
+    assert create_response.status_code == 200
+
+    response_one = client.get("/tiers/abc", headers=pawel_header)
+    assert response_one.status_code == 200
+    assert (
+        input == response_one.json()
+    )  # create endpoint is already checked and they (should) return the same data
+
+    response_all = client.get("/tiers", headers=pawel_header)
+    assert response_all.status_code == 200
+    assert [input] == response_all.json()

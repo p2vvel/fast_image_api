@@ -34,9 +34,9 @@ def test_tier_create(clean_db):
     response = client.post("/tiers", json=input, headers=header)
     assert response.status_code == 200
     json = response.json()
-    assert json["name"] == input["name"]
-    assert json["original_image"] == input["original_image"]
-    assert json["transform"] == input["transform"]
+    assert set(json.keys()) == {"id", "name", "original_image", "transform", "created_at"}
+    for key in input:
+        assert input[key] == json[key]
     assert isinstance(json["id"], int)  # TODO: is it good idea to test?
 
 

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 
+
 class TierBase(BaseModel):
     name: str
     original_image: bool
@@ -19,5 +20,9 @@ class TierForm(TierBase):
     pass
 
 
-class TierResponse(TierInDB):
+class TierResponseAdmin(TierInDB):
+    pass
+
+
+class TierResponseStandard(TierBase):
     pass

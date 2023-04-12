@@ -21,7 +21,7 @@ def create_tier(tier: TierForm, db: Session) -> Tier:
 
 
 def get_all_tiers(db: Session) -> list[Tier]:
-    all_tiers = db.execute(select(Tier)).all()
+    all_tiers = db.scalars(select(Tier)).all()
     return all_tiers
 
 

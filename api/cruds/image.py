@@ -11,11 +11,12 @@ def get_images(db: Session) -> list[schemas.Image]:
     return all_images
 
 
-def create_image(image: UploadFile, db: Session) -> schemas.Image:
+def create_image(image: UploadFile, user: models.User, db: Session) -> schemas.Image:
     filename = f"{uuid.uuid4()}.{image.filename.split('.')[-1]}"
     new_image = models.Image(
         original_filename=image.filename,
-        filename=filename
+        filename=filename,
+        user=user
     )
     db.add(new_image)
     db.commit()

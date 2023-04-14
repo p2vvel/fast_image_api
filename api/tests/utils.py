@@ -88,3 +88,7 @@ def auth_header(token: str) -> dict[str, str]:
     Return header with 'Authorization: Bearer <token>' section
     """
     return {"Authorization": f"Bearer {token}"}
+
+
+import pathlib
+TEST_IMAGES_PATH = pathlib.Path("./test_images")

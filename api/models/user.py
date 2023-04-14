@@ -18,5 +18,7 @@ class User(Base):
     tier_id: Mapped[int | None] = mapped_column(ForeignKey("tier.id"), default=None)
     tier: Mapped["Tier"] = relationship(back_populates="users")
 
+    images: Mapped[list["Image"]] = relationship(back_populates="user")
+
     def __repr__(self):
         return f"<User: '{self.username}'>"

@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from api.tests.utils import clean_db    # noqa: F401
+from api.tests.utils import clean_db  # noqa: F401
 from api.tests.utils import app, override_get_db, override_get_user
 
 from api.database import get_db
@@ -12,7 +12,7 @@ app.dependency_overrides[get_user] = override_get_user
 client = TestClient(app)
 
 
-def test_permissions(clean_db):     # noqa: F811
+def test_permissions(clean_db):  # noqa: F811
     create_user("pawel")
 
     file = {"file": open(TEST_IMAGES_PATH / "avatar1.png", "rb")}
@@ -23,7 +23,7 @@ def test_permissions(clean_db):     # noqa: F811
     assert response.status_code == 401  # anonymous user cannot upload image
 
 
-def test_upload_save(clean_db):     # noqa: F811
+def test_upload_save(clean_db):  # noqa: F811
     create_user("pawel")
 
     file = {"file": open(TEST_IMAGES_PATH / "avatar1.png", "rb")}

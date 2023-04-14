@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from api.tests.utils import clean_db    # noqa: F401
+from api.tests.utils import clean_db  # noqa: F401
 from api.tests.utils import app, override_get_db, create_user, override_get_user, auth_header
 
 from api import models
@@ -23,8 +23,9 @@ def test_standard_user_update(clean_db):
         "is_active": False,
         "is_superuser": True,
     }
-    get_user = lambda: \
-        db.query(models.User).filter(models.User.username == username).first()   # noqa: E731
+    get_user = (
+        lambda: db.query(models.User).filter(models.User.username == username).first()
+    )  # noqa: E731
 
     # convert to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__
@@ -48,8 +49,9 @@ def test_standard_user_update_unauthorized(clean_db):
         "is_active": False,
         "is_superuser": True,
     }
-    get_user = lambda: \
-        db.query(models.User).filter(models.User.username == username).first()  # noqa: E731
+    get_user = (
+        lambda: db.query(models.User).filter(models.User.username == username).first()
+    )  # noqa: E731
 
     # converting to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__
@@ -73,8 +75,9 @@ def test_standard_user_update_other_user(clean_db):
         "is_active": False,
         "is_superuser": True,
     }
-    get_user = lambda: \
-        db.query(models.User).filter(models.User.username == username).first()   # noqa: E731
+    get_user = (
+        lambda: db.query(models.User).filter(models.User.username == username).first()
+    )  # noqa: E731
 
     # converting to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__
@@ -97,8 +100,9 @@ def test_superuser_update(clean_db):
         "is_active": False,
         "is_superuser": True,
     }
-    get_user = lambda: \
-        db.query(models.User).filter(models.User.username == username).first()  # noqa: E731
+    get_user = (
+        lambda: db.query(models.User).filter(models.User.username == username).first()
+    )  # noqa: E731
 
     # converting to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__

@@ -12,7 +12,7 @@ class Tier(Base):
     transform: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())
 
-    users: Mapped[list["User"]] = relationship(back_populates="tier")   # noqa: F821
+    users: Mapped[list["User"]] = relationship(back_populates="tier")  # noqa: F821
 
     def __repr__(self) -> str:
         return f"<Tier: '{self.name}'>"

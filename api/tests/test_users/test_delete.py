@@ -15,7 +15,7 @@ def test_user_delete(clean_db):
     create_user("pawel")
     create_user("admin", is_superuser=True)
     db = next(override_get_db())
-    all_users = lambda: db.query(models.User).all()     # noqa: E731
+    all_users = lambda: db.query(models.User).all()  # noqa: E731
 
     assert len(all_users()) == 2  # 2 users in db
     response = client.delete("/users/pawel", headers=auth_header("pawel"))

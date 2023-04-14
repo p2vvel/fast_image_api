@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from api.tests.utils import clean_db    # noqa: F401
+from api.tests.utils import clean_db  # noqa: F401
 from api.tests.utils import app, override_get_db, override_get_user
 from api import models
 from api.database import get_db

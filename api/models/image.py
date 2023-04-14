@@ -11,10 +11,10 @@ class Image(Base):
     filename: Mapped[str] = mapped_column(unique=True)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
-    user: Mapped["User"] = relationship(back_populates="images")    # noqa: F821
+    user: Mapped["User"] = relationship(back_populates="images")  # noqa: F821
 
     original_image_id: Mapped[int | None] = mapped_column(ForeignKey("image.id"), default=None)
-    original_image: Mapped["Image"] = relationship()    # noqa: F821
+    original_image: Mapped["Image"] = relationship()  # noqa: F821
 
     def __repr__(self):
         return f"<Image: {self.id}>"

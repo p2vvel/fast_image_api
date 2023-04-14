@@ -11,13 +11,16 @@ router = APIRouter()
 
 
 @router.post("/")
-def upload_image(file: UploadFile, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)) -> schemas.OutputImage:
+def upload_image(
+    file: UploadFile, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
+) -> schemas.OutputImage:
     created_image = image_crud.create_image(file, user, db)
     return created_image
 
 
 @router.get("/")
-def get_images(db: Session = Depends(get_db), user: User = Depends(get_user_or_401)) -> list[schemas.OutputImage]:
+def get_images(
+    db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
+) -> list[schemas.OutputImage]:
     images = image_crud.get_images(db)
     return images
-

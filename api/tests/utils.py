@@ -59,7 +59,7 @@ def create_user(
     Creates new user and returns with given parameters,
     for testing purposes only
     """
-    hashed_password = pwd_context.hash(password)    # used passwords' hashes as always
+    hashed_password = pwd_context.hash(password)  # used passwords' hashes as always
     db = next(override_get_db())
     new_user = models.User(
         username=username, password=hashed_password, is_superuser=is_superuser, is_active=is_active
@@ -91,4 +91,5 @@ def auth_header(token: str) -> dict[str, str]:
 
 
 import pathlib
+
 TEST_IMAGES_PATH = pathlib.Path("./test_images")

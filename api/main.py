@@ -27,8 +27,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 from .database import get_db
 
+
 @app.get("/")
 def root(db: Session = Depends(get_db)):
     return "Hello!"
-
-

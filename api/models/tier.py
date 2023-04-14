@@ -2,6 +2,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from api.database import Base
 from datetime import datetime
 
+
 class Tier(Base):
     __tablename__ = "tier"
 

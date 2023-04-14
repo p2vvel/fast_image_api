@@ -2,6 +2,7 @@ from api.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 
+
 class Image(Base):
     __tablename__ = "image"
 
@@ -15,6 +16,5 @@ class Image(Base):
     original_image_id: Mapped[int | None] = mapped_column(ForeignKey("image.id"), default=None)
     original_image: Mapped["Image"] = relationship()
 
-    
     def __repr__(self):
         return f"<Image: {self.id}>"

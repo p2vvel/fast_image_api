@@ -16,9 +16,9 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now())
 
     tier_id: Mapped[int | None] = mapped_column(ForeignKey("tier.id"), default=None)
-    tier: Mapped["Tier"] = relationship(back_populates="users")
+    tier: Mapped["Tier"] = relationship(back_populates="users")     # noqa: F821
 
-    images: Mapped[list["Image"]] = relationship(back_populates="user")
+    images: Mapped[list["Image"]] = relationship(back_populates="user")     # noqa: F821
 
     def __repr__(self):
         return f"<User: '{self.username}'>"

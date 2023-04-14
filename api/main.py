@@ -1,14 +1,16 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 import os
+from fastapi import Depends
+from sqlalchemy.orm import Session
 
-from .database import Base, engine
+from .database import Base, engine, get_db
 from .routers import auth_router, images_router, users_router, tiers_router
 
 
 app = FastAPI()
-# server static files
 
+# serve static files
 if not os.path.exists("./images"):
     os.mkdir("./images")
 
@@ -21,11 +23,6 @@ app.include_router(tiers_router, prefix="/tiers")
 
 # make all migrations
 Base.metadata.create_all(bind=engine)
-
-
-from fastapi import Depends
-from sqlalchemy.orm import Session
-from .database import get_db
 
 
 @app.get("/")

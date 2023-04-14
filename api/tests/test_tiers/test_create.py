@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
-from api.tests.utils import clean_db, app, override_get_db, override_get_user
+from api.tests.utils import clean_db    # noqa: F401
+from api.tests.utils import app, override_get_db, override_get_user
 from api import models
 from api.database import get_db
 from api.dependencies.auth import get_user
@@ -15,7 +16,7 @@ client = TestClient(app)
 def test_create_permissions(clean_db):
     db = next(override_get_db())
     username = "pawel"
-    pawel = create_user(username)
+    create_user(username)
     input = {"name": "New tier", "original_image": False, "transform": False}
 
     # only admins can create tiers

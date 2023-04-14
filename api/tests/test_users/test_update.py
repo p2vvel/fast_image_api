@@ -1,12 +1,7 @@
 from fastapi.testclient import TestClient
-from api.tests.utils import (
-    clean_db,
-    app,
-    override_get_db,
-    create_user,
-    override_get_user,
-    auth_header,
-)
+from api.tests.utils import clean_db    # noqa: F401
+from api.tests.utils import app, override_get_db, create_user, override_get_user, auth_header
+
 from api import models
 from api.database import get_db
 from api.dependencies.auth import get_user
@@ -22,15 +17,16 @@ client = TestClient(app)
 def test_standard_user_update(clean_db):
     db = next(override_get_db())
     username = "pawel"
-    user = create_user(username, "1234")
+    create_user(username, "1234")
     new_data = {
         "password": "new password",
         "is_active": False,
         "is_superuser": True,
     }
-    get_user = lambda: db.query(models.User).filter(models.User.username == username).first()
+    get_user = lambda: \
+        db.query(models.User).filter(models.User.username == username).first()   # noqa: E731
 
-    # converting to dict to prevent from querying db after update, thus getting already updated data
+    # convert to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__
     response = client.patch(f"/users/{username}", headers=auth_header(username), json=new_data)
     assert response.status_code == 200
@@ -46,13 +42,14 @@ def test_standard_user_update(clean_db):
 def test_standard_user_update_unauthorized(clean_db):
     db = next(override_get_db())
     username = "pawel"
-    user = create_user(username, "1234")
+    create_user(username, "1234")
     new_data = {
         "password": "new password",
         "is_active": False,
         "is_superuser": True,
     }
-    get_user = lambda: db.query(models.User).filter(models.User.username == username).first()
+    get_user = lambda: \
+        db.query(models.User).filter(models.User.username == username).first()  # noqa: E731
 
     # converting to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__
@@ -69,14 +66,15 @@ def test_standard_user_update_other_user(clean_db):
     db = next(override_get_db())
     username = "pawel"
     username_2 = "kamilek"
-    user = create_user(username, "1234")
-    user2 = create_user(username_2, "1234")
+    create_user(username, "1234")
+    create_user(username_2, "1234")
     new_data = {
         "password": "new password",
         "is_active": False,
         "is_superuser": True,
     }
-    get_user = lambda: db.query(models.User).filter(models.User.username == username).first()
+    get_user = lambda: \
+        db.query(models.User).filter(models.User.username == username).first()   # noqa: E731
 
     # converting to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__
@@ -92,14 +90,15 @@ def test_standard_user_update_other_user(clean_db):
 def test_superuser_update(clean_db):
     db = next(override_get_db())
     username = "pawel"
-    user = create_user(username, "1234")
-    superuser = create_user("admin", "1234", is_superuser=True)
+    create_user(username, "1234")
+    create_user("admin", "1234", is_superuser=True)
     new_data = {
         "password": "new password",
         "is_active": False,
         "is_superuser": True,
     }
-    get_user = lambda: db.query(models.User).filter(models.User.username == username).first()
+    get_user = lambda: \
+        db.query(models.User).filter(models.User.username == username).first()  # noqa: E731
 
     # converting to dict to prevent from querying db after update, thus getting already updated data
     old_user_data = get_user().__dict__
@@ -114,7 +113,7 @@ def test_superuser_update(clean_db):
 
 
 def test_updated_at_change(clean_db):
-    pawel = create_user("pawel", "1234")
+    create_user("pawel", "1234")
 
     response = client.get("/users/pawel", headers=auth_header("pawel"))
     assert response.status_code == 200

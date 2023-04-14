@@ -27,7 +27,7 @@ def get_users(
 
 
 @router.get("/{username}")
-def get_users(
+def get_user(
     username: str, db: Session = Depends(get_db), user: schemas.UserInDB = Depends(get_user_or_401)
 ) -> schemas.UserResponse:
     if user.is_superuser or user.username == username:

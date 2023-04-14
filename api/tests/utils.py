@@ -4,12 +4,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 import pytest
 import jwt
+import pathlib
 
 from .. import config, models
 from ..database import Base, get_db
 from ..cruds.user import get_user_by_username
 from ..utils.crypto import oauth_scheme
-from ..main import app
 from ..utils.crypto import pwd_context
 
 engine = create_engine(config.TEST_DB_URL, connect_args={"check_same_thread": False})
@@ -89,7 +89,5 @@ def auth_header(token: str) -> dict[str, str]:
     """
     return {"Authorization": f"Bearer {token}"}
 
-
-import pathlib
 
 TEST_IMAGES_PATH = pathlib.Path("./test_images")

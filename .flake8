@@ -1,0 +1,8 @@
+[flake8]
+# using black line-length 99, so 105 as a little buffer
+max-line-length = 105   
+per-file-ignores =
+    # importing schemas and models in __init__ files for easier import in actual code
+    */__init__.py: F401
+    # pytest fixtures as arguments in tests are unused
+    */tests/*: F811

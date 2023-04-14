@@ -1,9 +1,9 @@
 from fastapi.testclient import TestClient
-from api.tests.utils import clean_db, app, override_get_db, override_get_user
+from api.tests.utils import clean_db  # noqa: F401
+from api.tests.utils import app, override_get_db, override_get_user
 from api import models
 from api.database import get_db
 from api.dependencies.auth import get_user
-import datetime
 from ..utils import create_user, auth_header
 from ... import models
 

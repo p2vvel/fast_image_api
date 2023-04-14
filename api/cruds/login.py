@@ -1,11 +1,10 @@
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 import datetime
 import jwt
 
-from ..database import get_db
-from ..utils.crypto import pwd_context, oauth_scheme
+from ..utils.crypto import pwd_context
 from .. import schemas, models, config
 
 

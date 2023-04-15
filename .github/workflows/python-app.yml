@@ -39,6 +39,6 @@ jobs:
       run: |
 
         # merge current branch with stable branch if all tests passed
-        gh pr merge --merge $(gh pr create --title "Update master" --body "Merging dev to master" --base master --head ${{ github.ref_name }})
+        gh pr merge --merge $(gh pr create --title "Update master" --body "Merging dev to master" --base stable --head ${{ github.ref_name }})
       env:
         GH_TOKEN: ${{ secrets.TOKEN }}

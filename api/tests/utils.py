@@ -7,6 +7,7 @@ import jwt
 import pathlib
 
 from .. import config, models
+from ..main import app  # noqa: F401
 from ..database import Base, get_db
 from ..cruds.user import get_user_by_username
 from ..utils.crypto import oauth_scheme

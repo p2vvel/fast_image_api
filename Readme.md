@@ -6,9 +6,12 @@ Image API written using Python with FastAPI and SQLAlchemy
 Features:
 * authentication based on JWT
 * ability to upload an image
-* different user tiers 
-* ability to make image private (UUID filenames, XSendFile)
-* ability to download original image (based on tier)
-* ability to download thumbnails (different sizes - based on tier)
-* ability to download Black/White image (based on tier)
+
+* images are private (UUID filename, XSendFile)
+
+* standard users can download original images
+* pro users can download transformed image(colors, crop, resize, mirror)
+
+* edited images are cached for 24h(changeable?), then deleted
+
 

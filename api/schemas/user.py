@@ -17,9 +17,9 @@ class UserInDB(UserForm):
     id: int
     is_active: bool
     is_superuser: bool
+    is_pro_user: bool
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    # tier: str
 
 
 class UserResponse(UserBase):
@@ -28,6 +28,8 @@ class UserResponse(UserBase):
     id: int
     is_active: bool
     is_superuser: bool
+    is_pro_user: bool
+
     # TODO: decide if created_at and updated_at should be sent in response
     created_at: datetime.datetime
     updated_at: datetime.datetime

@@ -21,13 +21,15 @@ def test_user_create(clean_db):
     assert set(json.keys()) == {
         "id",
         "username",
-        "is_superuser",
         "is_active",
+        "is_superuser",
+        "is_pro_user",
         "created_at",
-        "updated_at",
+        "updated_at"
     }
     assert json.get("username") == "pawel"
     assert json.get("is_superuser") is False
+    assert json.get("is_pro_user") is False
     assert json.get("is_active") is True
     assert isinstance(json.get("id"), int)
     # creation and update times should be equal at the creation

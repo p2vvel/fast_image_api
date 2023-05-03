@@ -6,3 +6,7 @@ httpx
 pytest
 sqlalchemy
 python-multipart
+
+pillow
+celery
+redis

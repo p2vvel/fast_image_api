@@ -16,6 +16,13 @@ class Flip(str, Enum):
     BOTH = "both"
 
 
+class Color(str, Enum):
+    NONE = "none"
+    BLACK_AND_WHITE = "black_and_white"
+    SEPIA = "sepia"
+    NEGATIVE = "negative"
+
+
 class Transform(BaseModel):
     rotation: Rotation = Rotation.NONE
     flip: Flip = Flip.NONE

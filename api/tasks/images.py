@@ -1,5 +1,5 @@
 from celery import Celery
-from PIL import Image
+from PIL import Image, ImageOps
 from ..schemas import transform as schema
 
 
@@ -9,7 +9,7 @@ app = Celery('tasks', broker='redis://', backend='redis://')
 @app.task
 def edit_image(input_file: str, output_file: str, transform: schema.Transform):
     with Image.open(input_file) as image:
-        img = image.convert("L")
+        img = image
         img = rotate_image(img, transform.rotation)
         img = flip_image(img, transform.flip)
         img.save(output_file)
@@ -46,6 +46,34 @@ def flip_image(img: Image, flip: schema.Rotation):
             raise ValueError("Invalid flip value")
 
 
+def change_colors(img: Image, color: schema.Color):
+    """Change image colors according to color value"""
+    match color:
+        case schema.Color.NONE:
+            return img
+        case schema.Color.BLACK_AND_WHITE:
+            return ImageOps.grayscale(img)
+        case schema.Color.SEPIA:
+            result = img.copy()
+            pixels = result.load()
+            width, height = img.size
+            for px in range(width):
+                for py in range(height):
+                    r, g, b = pixels[px, py]
+                    newR = int(r * 0.393 + g * 0.769 + b * 0.189)
+                    newG = int(r * 0.349 + g * 0.686 + b * 0.168)
+                    newB = int(r * 0.272 + g * 0.534 + b * 0.131)
+                    pixels[px, py] = (newR, newG, newB)
+            return result
+        case schema.Color.NEGATIVE:
+            return ImageOps.invert(img)
+        case _:
+            raise ValueError("Invalid color value")
+
+
 if __name__ == "__main__":
-    transformation = schema.Transform(rotation=schema.Rotation.NONE, flip=schema.Flip.NONE)
-    edit_image("./test_images/avatar1.png", "avatar1_bw.png", transformation)
+    # transformation = schema.Transform(rotation=schema.Rotation.NONE, flip=schema.Flip.NONE)
+    # edit_image("./test_images/avatar1.png", "avatar1_bw.png", transformation)
+    img = Image.open("./test_images/avatar1.png")
+    img = change_colors(img, schema.Color.BLACK_AND_WHITE)
+    img.save("avatar1_bw.png")

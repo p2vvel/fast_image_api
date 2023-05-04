@@ -21,6 +21,8 @@ class Color(str, Enum):
     BLACK_AND_WHITE = "black_and_white"
     SEPIA = "sepia"
     NEGATIVE = "negative"
+    WARM = "warm"
+    COLD = "cold"
 
 
 class Transform(BaseModel):

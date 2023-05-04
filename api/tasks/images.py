@@ -67,6 +67,26 @@ def change_colors(img: Image, color: schema.Color):
             return result
         case schema.Color.NEGATIVE:
             return ImageOps.invert(img)
+        case schema.Color.WARM:
+            ratio = 15
+            result = img.copy()
+            pixels = result.load()
+            width, height = img.size
+            for px in range(width):
+                for py in range(height):
+                    r, g, b = pixels[px, py]
+                    pixels[px, py] = (r + ratio, g, b - ratio)
+            return result
+        case schema.Color.COLD:
+            ratio = 15
+            result = img.copy()
+            pixels = result.load()
+            width, height = img.size
+            for px in range(width):
+                for py in range(height):
+                    r, g, b = pixels[px, py]
+                    pixels[px, py] = (r - ratio, g, b + ratio)
+            return result
         case _:
             raise ValueError("Invalid color value")
 
@@ -75,5 +95,6 @@ if __name__ == "__main__":
     # transformation = schema.Transform(rotation=schema.Rotation.NONE, flip=schema.Flip.NONE)
     # edit_image("./test_images/avatar1.png", "avatar1_bw.png", transformation)
     img = Image.open("./test_images/avatar1.png")
-    img = change_colors(img, schema.Color.BLACK_AND_WHITE)
+    img = change_colors(img, schema.Color.COLD)
+    # img = change_colors(img, schema.Color.NONE)
     img.save("avatar1_bw.png")

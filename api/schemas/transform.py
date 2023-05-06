@@ -25,6 +25,13 @@ class Color(str, Enum):
     COLD = "cold"
 
 
+class Size(BaseModel):
+    x: int = 0
+    y: int = 0
+
+
 class Transform(BaseModel):
     rotation: Rotation = Rotation.NONE
     flip: Flip = Flip.NONE
+    color: Color = Color.NONE
+    size: Size = Size(x=0, y=0)

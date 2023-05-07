@@ -10,7 +10,7 @@ app = Celery("tasks", broker="redis://", backend="redis://")
 
 
 @app.task
-def edit_image(input_file: str, output_file: str, transform: schema.Transform):
+def edit_image(input_file: str, output_file: str, transform: schema.Transform) -> None:
     with Image.open(input_file) as image:
         img = image
         img = change_rotation(img, transform.rotation)

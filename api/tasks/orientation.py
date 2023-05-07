@@ -2,7 +2,7 @@ from PIL import Image
 from ..schemas import transform as schema
 
 
-def change_orientation(img: Image, flip: schema.Rotation):
+def change_orientation(img: Image, flip: schema.Rotation) -> Image:
     """Flip image according to flip value"""
     match flip:
         case schema.Flip.NONE:

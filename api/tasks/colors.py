@@ -29,7 +29,7 @@ def change_warmth(img: Image, ratio: int) -> Image:
     return result
 
 
-def change_colors(img: Image, color: schema.Color):
+def change_colors(img: Image, color: schema.Color) -> Image:
     """Change image colors according to color value"""
     match color:
         case schema.Color.NONE:

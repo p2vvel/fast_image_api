@@ -18,7 +18,9 @@ def create_image(image: UploadFile, user: models.User, db: Session) -> schemas.I
     db.commit()
     db.refresh(new_image)
 
-    new_path = Path(config.FILE_STORAGE) / filename
+    new_path = Path(config.FILE_STORAGE) / str(user.uuid) / filename
+    new_path.parent.mkdir(exist_ok=True)    # do not check if exists, just create and ignore exception exists
+
     with open(new_path, "wb") as saved_file:
         content = image.file.read()
         saved_file.write(content)

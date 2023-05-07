@@ -1,6 +1,7 @@
 from sqlalchemy.orm import mapped_column, relationship, Mapped
 from api.database import Base
 from datetime import datetime
+from uuid import uuid4, UUID
 
 
 class User(Base):
@@ -17,6 +18,7 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now())
 
     images: Mapped[list["Image"]] = relationship(back_populates="user")     # noqa: F821
+    uuid: Mapped[UUID] = mapped_column(default=uuid4, unique=True, nullable=False, index=True)
 
     def __repr__(self):
         return f"<User: '{self.username}'>"

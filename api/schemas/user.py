@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from uuid import UUID
 import datetime
 
 
@@ -20,6 +21,7 @@ class UserInDB(UserForm):
     is_pro_user: bool
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    uuid: UUID
 
 
 class UserResponse(UserBase):
@@ -29,6 +31,7 @@ class UserResponse(UserBase):
     is_active: bool
     is_superuser: bool
     is_pro_user: bool
+    uuid: UUID
 
     # TODO: decide if created_at and updated_at should be sent in response
     created_at: datetime.datetime

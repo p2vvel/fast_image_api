@@ -1,18 +1,18 @@
 from sqlalchemy.orm import Session
 from fastapi import UploadFile
 from pathlib import Path
-import uuid
+from uuid import UUID, uuid4
+from sqlalchemy import select
+from .. import models, config
 
-from .. import models, config, schemas
 
-
-def get_images(db: Session) -> list[schemas.Image]:
+def get_images(db: Session) -> list[models.Image]:
     all_images = db.query(models.Image).all()
     return all_images
 
 
-def create_image(image: UploadFile, user: models.User, db: Session) -> schemas.Image:
-    filename = f"{uuid.uuid4()}.{image.filename.split('.')[-1]}"
+def create_image(image: UploadFile, user: models.User, db: Session) -> models.Image:
+    filename = f"{uuid4()}.{image.filename.split('.')[-1]}"
     new_image = models.Image(original_filename=image.filename, filename=filename, user=user)
     db.add(new_image)
     db.commit()
@@ -26,3 +26,8 @@ def create_image(image: UploadFile, user: models.User, db: Session) -> schemas.I
         saved_file.write(content)
 
     return new_image
+
+
+def get_image_by_uuid(image_uuid: UUID, db: Session) -> models.Image:
+    image = db.scalar(select(models.Image).where(models.Image.uuid == image_uuid))
+    return image

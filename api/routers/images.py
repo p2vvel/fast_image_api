@@ -6,6 +6,8 @@ from ..database import get_db
 from ..cruds import image as image_crud
 from ..models import User
 from ..dependencies.auth import get_user_or_401
+from uuid import UUID
+
 
 router = APIRouter()
 
@@ -24,3 +26,19 @@ def get_images(
 ) -> list[schemas.OutputImage]:
     images = image_crud.get_images(db)
     return images
+
+
+@router.get("/{user_uuid}/{image_uuid}")
+def get_original_image(
+    user_uuid: UUID,
+    image_uuid: UUID,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_user_or_401),
+):
+    # image = image_crud.get_original_image(user_id, image_id, db)
+    # return image
+    
+    print("USER UUID: ", user_uuid)
+    print("IMAGE UUID: ", image_uuid)
+    pass
+    return "HI"

@@ -15,3 +15,14 @@ Features:
 * edited images are cached for 24h(changeable?), then deleted
 
 
+```
+get original image:
+/images/<user_uuid>/<image_uuid>
+
+edit image:
+/images/<user_uuid>/<image_uuid>/edit
+
+
+returns url to:
+/images/edited/<task_uuid>
+```

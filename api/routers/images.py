@@ -8,8 +8,9 @@ from ..cruds import image as image_crud
 from ..models import User
 from ..dependencies.auth import get_user_or_401
 from uuid import UUID, uuid4
-from api.tasks.images import edit_image
-
+from ..config import IMAGE_URL
+from api.tasks.images import edit_image, app as celery_app
+from celery.result import AsyncResult
 
 router = APIRouter()
 
@@ -30,6 +31,16 @@ def get_images(
     return images
 
 
+
+@router.get("/status/{task_uuid}")
+def get_edit_status(task_uuid: UUID):
+    temp = AsyncResult(str(task_uuid), app=celery_app)
+    return {
+        "status": temp.status,
+        "result": temp.get()
+    }
+
+
 # TODO: implement xsendfile - https://www.nginx.com/resources/wiki/start/topics/examples/xsendfile/
 # temporary workaround for serving images below:
 @router.get("/{user_uuid}/{image_uuid}")
@@ -47,7 +58,7 @@ def get_original_image(
 
 
 @router.get("/{user_uuid}/{image_uuid}/transform")
-def send_image_to_celery(
+def send_edit_to_celery(
     user_uuid: UUID,
     image_uuid: UUID,
     transform: schemas.Transform,
@@ -59,9 +70,9 @@ def send_image_to_celery(
         raise HTTPException(status_code=403)
 
     new_filename = f"{uuid4()}.png"
-    temp = edit_image.delay(image.path, new_filename, transform)
+    task = edit_image.delay(image.path, new_filename, transform)
 
-    return temp.id
-    # return 
-    # return FileResponse(image.path)
-    return "TODO: implement image editing"
+    return {
+        "task_id": task.id,
+        "status_url": f"{IMAGE_URL}/status/{task.id}"
+    }

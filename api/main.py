@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from .database import Base, engine, get_db
 from .routers import auth_router, images_router, users_router
-
+from .config import IMAGE_URL
 
 app = FastAPI()
 
@@ -17,7 +17,7 @@ if not os.path.exists("./images"):
 app.mount("/static", StaticFiles(directory="./images"), name="static")
 app.include_router(auth_router, prefix="/auth")
 app.include_router(users_router, prefix="/users")
-app.include_router(images_router, prefix="/images")
+app.include_router(images_router, prefix=IMAGE_URL)
 
 
 # make all migrations

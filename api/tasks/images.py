@@ -7,6 +7,11 @@ from .orientation import change_orientation
 from .size import change_size
 
 app = Celery("tasks", broker="redis://", backend="redis://")
+app.conf.update(
+    task_serializer='pickle',
+    result_serializer='json',
+    accept_content=['pickle'],
+)
 
 
 @app.task
@@ -18,6 +23,7 @@ def edit_image(input_file: str, output_file: str, transform: schema.Transform) -
         img = change_colors(img, transform.color)
         img = change_size(img, transform.size)
         img.save(output_file)
+        return output_file
 
 
 if __name__ == "__main__":
@@ -25,6 +31,6 @@ if __name__ == "__main__":
         rotation=schema.Rotation.NONE,
         flip=schema.Flip.NONE,
         color=schema.Color.SEPIA,
-        size=schema.Size(x=0, y=10000),
+        size=schema.Size(x=0, y=200),
     )
     edit_image("./test_images/avatar1.png", "avatar1_bw.png", transformation)

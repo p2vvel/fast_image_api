@@ -12,14 +12,15 @@ def get_images(db: Session) -> list[models.Image]:
 
 
 def create_image(image: UploadFile, user: models.User, db: Session) -> models.Image:
-    filename = f"{uuid4()}.{image.filename.split('.')[-1]}"
-    new_image = models.Image(original_filename=image.filename, filename=filename, user=user)
+    uuid = uuid4()
+    filename = f"{uuid}.{image.filename.split('.')[-1]}"
+    new_image = models.Image(original_filename=image.filename, filename=filename, user=user, uuid=uuid)
     db.add(new_image)
     db.commit()
     db.refresh(new_image)
 
     new_path = Path(config.FILE_STORAGE) / str(user.uuid) / filename
-    new_path.parent.mkdir(exist_ok=True)    # do not check if exists, just create and ignore exception exists
+    new_path.parent.mkdir(parents=True, exist_ok=True)    # do not check if exists, just create and ignore exception exists
 
     with open(new_path, "wb") as saved_file:
         content = image.file.read()

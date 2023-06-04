@@ -13,7 +13,7 @@ class Image(BaseModel):
 
 
 class OutputImage(Image):
-    path: str | None
+    url: str | None
     # def __init__(self, *args, **kwargs):
     #     super().__init__(*args, **kwargs)
     #     self.path = Path(config.FILE_STORAGE) / self.filename

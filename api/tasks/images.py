@@ -10,7 +10,7 @@ app = Celery("tasks", broker="redis://", backend="redis://")
 app.conf.update(
     task_serializer='pickle',
     result_serializer='json',
-    accept_content=['pickle'],
+    accept_content=['pickle', "json"],
 )
 
 

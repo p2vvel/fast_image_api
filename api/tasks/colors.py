@@ -4,7 +4,7 @@ from ..schemas import transform as schema
 
 def sepia(img: Image) -> Image:
     """Convert image to sepia"""
-    result = img.copy()
+    result = img.copy().convert("RGB")
     pixels = result.load()
     width, height = img.size
     for px in range(width):
@@ -19,7 +19,7 @@ def sepia(img: Image) -> Image:
 
 def change_warmth(img: Image, ratio: int) -> Image:
     """Change image warmth by given ratio"""
-    result = img.copy()
+    result = img.copy().convert("RGB")
     pixels = result.load()
     width, height = img.size
     for px in range(width):

@@ -11,6 +11,8 @@ from uuid import UUID, uuid4
 from ..config import IMAGE_URL, FILE_STORAGE
 from api.tasks.images import edit_image, app as celery_app
 from celery.result import AsyncResult
+from pathlib import Path
+
 
 router = APIRouter()
 
@@ -83,7 +85,9 @@ def send_edit_to_celery(
     if user_uuid != user.uuid or image.user != user:
         raise HTTPException(status_code=403)
 
-    new_filename = f"{uuid4()}.png"
+    new_filename = Path(FILE_STORAGE) / "edited" / f"{uuid4()}.png"
+    # create directory if doesn't exist, ignore errors
+    new_filename.parent.mkdir(parents=True, exist_ok=True)  
     # add original image info to transform object
     internal_transform = schemas.TransformInternal(**transform.dict(), original_image_id=image.id)
     task = edit_image.delay(

@@ -8,7 +8,7 @@ from ..cruds import image as image_crud
 from ..models import User
 from ..dependencies.auth import get_user_or_401
 from uuid import UUID, uuid4
-from ..config import IMAGE_URL
+from ..config import IMAGE_URL, FILE_STORAGE
 from api.tasks.images import edit_image, app as celery_app
 from celery.result import AsyncResult
 
@@ -31,13 +31,12 @@ def get_images(
     return images
 
 
-
 @router.get("/status/{task_uuid}")
 def get_edit_status(task_uuid: UUID):
-    temp = AsyncResult(str(task_uuid), app=celery_app)
+    result = AsyncResult(str(task_uuid), app=celery_app)
     return {
-        "status": temp.status,
-        "result": temp.get()
+        "status": result.status,
+        "result": f"{result.result}" if result.status == "SUCCESS" else None
     }
 
 
@@ -55,6 +54,14 @@ def get_original_image(
         raise HTTPException(status_code=403)
 
     return FileResponse(image.path)
+
+
+def get_edited_image(
+    edit_uuid: UUID,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_user_or_401)
+) -> FileResponse:
+    pass
 
 
 @router.get("/{user_uuid}/{image_uuid}/transform")

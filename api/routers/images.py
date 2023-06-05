@@ -32,11 +32,20 @@ def get_images(
 
 
 @router.get("/status/{task_uuid}")
-def get_edit_status(task_uuid: UUID):
+def get_edit_status(
+    task_uuid: UUID, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
+):
     result = AsyncResult(str(task_uuid), app=celery_app)
+    # check permissions
+    original_image_id = result.kwargs["transform"].original_image_id
+    original_image = image_crud.get_image_by_id(original_image_id, db)
+    # check if user is owner of original image
+    if original_image.user != user:
+        raise HTTPException(status_code=403)
+    
     return {
         "status": result.status,
-        "result": f"{result.result}" if result.status == "SUCCESS" else None
+        "result": f"{result.result}" if result.status == "SUCCESS" else None,
     }
 
 
@@ -57,9 +66,7 @@ def get_original_image(
 
 
 def get_edited_image(
-    edit_uuid: UUID,
-    db: Session = Depends(get_db),
-    user: User = Depends(get_user_or_401)
+    edit_uuid: UUID, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ) -> FileResponse:
     pass
 
@@ -77,9 +84,10 @@ def send_edit_to_celery(
         raise HTTPException(status_code=403)
 
     new_filename = f"{uuid4()}.png"
-    task = edit_image.delay(image.path, new_filename, transform)
+    # add original image info to transform object
+    internal_transform = schemas.TransformInternal(**transform.dict(), original_image_id=image.id)
+    task = edit_image.delay(
+        input_file=image.path, output_file=new_filename, transform=internal_transform
+    )
 
-    return {
-        "task_id": task.id,
-        "status_url": f"{IMAGE_URL}/status/{task.id}"
-    }
+    return {"task_id": task.id, "status_url": f"{IMAGE_URL}/status/{task.id}"}

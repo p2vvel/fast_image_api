@@ -9,13 +9,14 @@ from .size import change_size
 app = Celery("tasks", broker="redis://", backend="redis://")
 app.conf.update(
     task_serializer='pickle',
-    result_serializer='json',
-    accept_content=['pickle', "json"],
+    result_serializer='pickle',
+    accept_content=['pickle'],
+    result_extended=True
 )
 
 
 @app.task
-def edit_image(input_file: str, output_file: str, transform: schema.Transform) -> None:
+def edit_image(input_file: str, output_file: str, transform: schema.TransformInternal) -> None:
     with Image.open(input_file) as image:
         img = image
         img = change_rotation(img, transform.rotation)

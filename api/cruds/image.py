@@ -29,6 +29,11 @@ def create_image(image: UploadFile, user: models.User, db: Session) -> models.Im
     return new_image
 
 
+def get_image_by_id(image_id: int, db: Session) -> models.Image:
+    image = db.scalar(select(models.Image).where(models.Image.id == image_id))
+    return image
+
+
 def get_image_by_uuid(image_uuid: UUID, db: Session) -> models.Image:
     image = db.scalar(select(models.Image).where(models.Image.uuid == image_uuid))
     return image

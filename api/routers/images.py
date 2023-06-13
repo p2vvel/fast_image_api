@@ -8,10 +8,10 @@ from ..cruds import image as image_crud
 from ..models import User
 from ..dependencies.auth import get_user_or_401
 from uuid import UUID, uuid4
-from ..config import IMAGE_URL, FILE_STORAGE
 from api.tasks.images import edit_image, app as celery_app
 from celery.result import AsyncResult
 from pathlib import Path
+from ..config import settings
 
 
 router = APIRouter()
@@ -85,7 +85,7 @@ def send_edit_to_celery(
     if user_uuid != user.uuid or image.user != user:
         raise HTTPException(status_code=403)
 
-    new_filename = Path(FILE_STORAGE) / "edited" / f"{uuid4()}.png"
+    new_filename = Path(settings.file_storage) / "edited" / f"{uuid4()}.png"
     # create directory if doesn't exist, ignore errors
     new_filename.parent.mkdir(parents=True, exist_ok=True)  
     # add original image info to transform object
@@ -94,4 +94,4 @@ def send_edit_to_celery(
         input_file=image.path, output_file=new_filename, transform=internal_transform
     )
 
-    return {"task_id": task.id, "status_url": f"{IMAGE_URL}/status/{task.id}"}
+    return {"task_id": task.id, "status_url": f"{settings.image_url}/status/{task.id}"}

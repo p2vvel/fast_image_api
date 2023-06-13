@@ -5,7 +5,8 @@ import datetime
 import jwt
 
 from ..utils.crypto import pwd_context
-from .. import schemas, models, config
+from .. import schemas, models
+from ..config import settings
 
 
 def user_login(user: OAuth2PasswordRequestForm, db: Session) -> models.User:
@@ -33,5 +34,5 @@ def generate_token(
         "iss": expiration_time,
     }
 
-    token = jwt.encode(payload, config.SECRET, algorithm=config.ALGORITHM)
+    token = jwt.encode(payload, settings.secret, algorithm=settings.algorithm)
     return schemas.Token(active_token=token, expires=expiration_time)

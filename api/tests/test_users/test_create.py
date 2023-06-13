@@ -14,7 +14,7 @@ client = TestClient(app)
 
 
 def test_user_create(clean_db):
-    input = {"username": "pawel", "password": "1234"}
+    input = {"username": "pawel", "password": "Dupa1234."}
     response = client.post("/users", json=input)
     assert response.status_code == 200
 
@@ -45,11 +45,11 @@ def test_user_create(clean_db):
 
 def test_create_user_wrong_input(clean_db):
     # normal user creation
-    response = client.post("/users", json={"username": "pawel", "password": "1234"})
+    response = client.post("/users", json={"username": "pawel", "password": "Dupa1234."})
     assert response.status_code == 200
 
     # create duplicated username
-    response = client.post("/users", json={"username": "pawel", "password": "1234"})
+    response = client.post("/users", json={"username": "pawel", "password": "Dupa1234."})
     assert response.status_code == 409  # endpoint should return 409 (duplicate)
 
     # create user without password

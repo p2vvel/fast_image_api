@@ -17,9 +17,9 @@ client = TestClient(app)
 def test_standard_user_update(clean_db):
     db = next(override_get_db())
     username = "pawel"
-    create_user(username, "1234")
+    create_user(username, "Dupa1234.")
     new_data = {
-        "password": "new password",
+        "password": "New_password1234.",
         "is_active": False,
         "is_superuser": True,
     }
@@ -43,7 +43,7 @@ def test_standard_user_update(clean_db):
 def test_standard_user_update_unauthorized(clean_db):
     db = next(override_get_db())
     username = "pawel"
-    create_user(username, "1234")
+    create_user(username, "Dupa1234.")
     new_data = {
         "password": "new password",
         "is_active": False,
@@ -68,10 +68,10 @@ def test_standard_user_update_other_user(clean_db):
     db = next(override_get_db())
     username = "pawel"
     username_2 = "kamilek"
-    create_user(username, "1234")
-    create_user(username_2, "1234")
+    create_user(username, "Dupa1234.")
+    create_user(username_2, "Dupa1234.")
     new_data = {
-        "password": "new password",
+        "password": "New_password1234.",
         "is_active": False,
         "is_superuser": True,
     }
@@ -93,10 +93,10 @@ def test_standard_user_update_other_user(clean_db):
 def test_superuser_update(clean_db):
     db = next(override_get_db())
     username = "pawel"
-    create_user(username, "1234")
-    create_user("admin", "1234", is_superuser=True)
+    create_user(username, "Dupa1234.")
+    create_user("admin", "Dupa1234.", is_superuser=True)
     new_data = {
-        "password": "new password",
+        "password": "New_password1234.",
         "is_active": False,
         "is_superuser": True,
     }
@@ -117,7 +117,7 @@ def test_superuser_update(clean_db):
 
 
 def test_updated_at_change(clean_db):
-    create_user("pawel", "1234")
+    create_user("pawel", "Dupa1234.")
 
     response = client.get("/users/pawel", headers=auth_header("pawel"))
     assert response.status_code == 200
@@ -125,7 +125,7 @@ def test_updated_at_change(clean_db):
 
     time.sleep(1)  # wait 1 second to show difference
 
-    response = client.patch("/users/pawel", headers=auth_header("pawel"), json={"password": "123"})
+    response = client.patch("/users/pawel", headers=auth_header("pawel"), json={"password": "Dupa12345."})
     assert response.status_code == 200
     new_updated_at = datetime.datetime.fromisoformat(response.json().get("updated_at"))
 

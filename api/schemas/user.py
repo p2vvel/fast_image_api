@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator, ValidationError
+from pydantic import BaseModel, validator
 from uuid import UUID
 import datetime
 import re
@@ -7,14 +7,14 @@ from string import ascii_uppercase, ascii_lowercase, digits, punctuation
 
 def password_validator(cls, value):
     if len(value) < 8:
-        raise ValidationError("Password too short (min 8 characters)")
+        raise ValueError("Password too short (min 8 characters)")
     if len(value) > 250:
-        raise ValidationError("Password too long (max 250 characters)")
+        raise ValueError("Password too long (max 250 characters)")
     if not (any([c in value for c in ascii_lowercase]) and
             any([c in value for c in ascii_uppercase]) and
             any([c in value for c in digits]) and
             any([c in value for c in punctuation])):
-        raise ValidationError("Password must contain at least one uppercase letter, one lowercase letter, one digit and one special character") # noqa E501
+        raise ValueError("Password must contain at least one uppercase letter, one lowercase letter, one digit and one special character") # noqa E501
 
     return value
 
@@ -25,11 +25,11 @@ class UserBase(BaseModel):
     @validator("username")
     def validate_username(cls, value):
         if len(value) < 3:
-            raise ValidationError("Username too short (min 3 characters)")
+            raise ValueError("Username too short (min 3 characters)")
         if len(value) > 20:
-            raise ValidationError("Username too long (max 20 characters)")
+            raise ValueError("Username too long (max 20 characters)")
         if re.match(r"^[a-zA-Z-_\d]+$", value) is None:
-            raise ValidationError("Username can only contain letters, numbers, dashes ('-') and underscores ('_')")
+            raise ValueError("Username can only contain letters, numbers, dashes ('-') and underscores ('_')")
         return value
 
     class Config:

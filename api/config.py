@@ -1,12 +1,25 @@
-DB_URL = "sqlite:///./db.sqlite"
-# FILE_STORAGE = "/home/pawel/fast_image_api/images/"
-FILE_STORAGE = "./images/"
-
-JWT_TIMEDELTA_MINUTES = 15
-ALGORITHM = "HS256"
-SECRET = "d9b17b791db4a785cfaf89a02f5eb3b4459670d74d68be3900ce88de50a33e68"
-
-TEST_DB_URL = "sqlite:///./test_db.sqlite"
+from pydantic import BaseSettings
+# from functools import lru_cache
 
 
-IMAGE_URL = "/images"
+class SettingsStorage(BaseSettings):
+    algorithm: str = "HS256"
+    db_url: str = "sqlite:///./db.sqlite"
+    file_storage: str = "./images/"
+    jwt_timedelta_minutes: int = 15
+
+    secret: str = "d9b17b791db4a785cfaf89a02f5eb3b4459670d74d68be3900ce88de50a33e68"
+    test_db_url: str = "sqlite:///./test_db.sqlite"
+    image_url: str = "/images"
+    msg: str = "Default hello world!"
+
+    class Config:
+        env_file = ".env"
+
+
+# @lru_cache()
+# def settings():
+#     return SettingsStorage()
+
+
+settings = SettingsStorage()

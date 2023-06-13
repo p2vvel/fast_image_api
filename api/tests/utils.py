@@ -6,14 +6,15 @@ import pytest
 import jwt
 import pathlib
 
-from .. import config, models
+from .. import models
+from ..config import settings
 from ..main import app  # noqa: F401
 from ..database import Base, get_db
 from ..cruds.user import get_user_by_username
 from ..utils.crypto import oauth_scheme
 from ..utils.crypto import pwd_context
 
-engine = create_engine(config.TEST_DB_URL, connect_args={"check_same_thread": False})
+engine = create_engine(settings.test_db_url, connect_args={"check_same_thread": False})
 testing_local_session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -80,7 +81,7 @@ def generate_token(username: str, *, expiration_time: timedelta = timedelta(minu
         "sub": username,
         "iss": expiration_time,
     }
-    token = jwt.encode(payload, config.SECRET, algorithm=config.ALGORITHM)
+    token = jwt.encode(payload, settings.secret, algorithm=settings.algorithm)
     return token
 
 

@@ -3,7 +3,8 @@ from fastapi import UploadFile
 from pathlib import Path
 from uuid import UUID, uuid4
 from sqlalchemy import select
-from .. import models, config
+from .. import models
+from ..config import settings
 
 
 def get_images(db: Session) -> list[models.Image]:
@@ -19,8 +20,9 @@ def create_image(image: UploadFile, user: models.User, db: Session) -> models.Im
     db.commit()
     db.refresh(new_image)
 
-    new_path = Path(config.FILE_STORAGE) / str(user.uuid) / filename
-    new_path.parent.mkdir(parents=True, exist_ok=True)    # do not check if exists, just create and ignore exception exists
+    new_path = Path(settings.file_storage) / str(user.uuid) / filename
+    # do not check if exists, just create and ignore exception exists
+    new_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(new_path, "wb") as saved_file:
         content = image.file.read()

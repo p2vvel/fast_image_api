@@ -1,9 +1,9 @@
 from api.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
-from ..config import IMAGE_URL, FILE_STORAGE
 from uuid import UUID
 from pathlib import Path
+from api.config import settings
 
 
 class Image(Base):
@@ -24,11 +24,11 @@ class Image(Base):
     def url(self) -> str:
         user_uuid = self.user.uuid
         image_uuid = self.uuid
-        return f"{IMAGE_URL}/{user_uuid}/{image_uuid}"
+        return f"{settings.image_url}/{user_uuid}/{image_uuid}"
 
     @property
     def path(self) -> Path:
-        return Path(FILE_STORAGE) / str(self.user.uuid) / self.filename
+        return Path(settings.file_storage) / str(self.user.uuid) / self.filename
 
     def __repr__(self):
         return f"<Image: {self.id}>"

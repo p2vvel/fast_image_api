@@ -2,8 +2,9 @@ from api.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from ..config import IMAGE_URL, FILE_STORAGE
-from uuid import uuid4, UUID
+from uuid import UUID
 from pathlib import Path
+
 
 class Image(Base):
     __tablename__ = "image"

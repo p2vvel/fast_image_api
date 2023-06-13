@@ -35,11 +35,11 @@ def change_colors(img: Image, color: schema.Color) -> Image:
         case schema.Color.NONE:
             return img
         case schema.Color.BLACK_AND_WHITE:
-            return ImageOps.grayscale(img)
+            return ImageOps.grayscale(img.convert("RGB"))
         case schema.Color.SEPIA:
             return sepia(img)
         case schema.Color.NEGATIVE:
-            return ImageOps.invert(img)
+            return ImageOps.invert(img.convert("RGB"))
         case schema.Color.WARM:
             return change_warmth(img, 15)
         case schema.Color.COLD:

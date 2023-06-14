@@ -1,4 +1,4 @@
-from fastapi import Depends, UploadFile, APIRouter, HTTPException
+from fastapi import Depends, UploadFile, APIRouter, HTTPException, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -17,15 +17,22 @@ from ..config import settings
 router = APIRouter()
 
 
-@router.post("/", tags=["images"], )
+@router.post(
+    "/",
+    tags=["images"],
+    status_code=status.HTTP_201_CREATED,
+    response_description="Created image metadata",
+)
 def upload_image(
     file: UploadFile, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ) -> schemas.OutputImage:
+    """Upload new image"""
     created_image = image_crud.create_image(file, user, db)
     return created_image
 
 
-@router.get("/", tags=["images"])
+# TODO: permissions!
+@router.get("/", tags=["images"], response_description="List of images")
 def get_images(
     db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ) -> list[schemas.OutputImage]:
@@ -33,7 +40,7 @@ def get_images(
     return images
 
 
-@router.get("/status/{task_uuid}", tags=["images"])
+@router.get("/status/{task_uuid}", tags=["images"], response_description="Edit task status")
 def get_edit_status(
     task_uuid: UUID, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ):
@@ -44,7 +51,7 @@ def get_edit_status(
     # check if user is owner of original image
     if original_image.user != user:
         raise HTTPException(status_code=403)
-    
+
     return {
         "status": result.status,
         "result": f"{result.result}" if result.status == "SUCCESS" else None,
@@ -53,13 +60,16 @@ def get_edit_status(
 
 # TODO: implement xsendfile - https://www.nginx.com/resources/wiki/start/topics/examples/xsendfile/
 # temporary workaround for serving images below:
-@router.get("/{user_uuid}/{image_uuid}", tags=["images"])
+@router.get(
+    "/{user_uuid}/{image_uuid}", tags=["images"], response_description="Uploaded image file"
+)
 def get_original_image(
     user_uuid: UUID,
     image_uuid: UUID,
     db: Session = Depends(get_db),
     user: User = Depends(get_user_or_401),
 ) -> FileResponse:
+    """Fetch previously uploaded image"""
     image = image_crud.get_image_by_uuid(image_uuid, db)
     if user_uuid != user.uuid or image.user != user:
         raise HTTPException(status_code=403)
@@ -74,7 +84,9 @@ def get_edited_image(
     pass
 
 
-@router.get("/{user_uuid}/{image_uuid}/transform", tags=["images"])
+@router.get(
+    "/{user_uuid}/{image_uuid}/transform", tags=["images"], response_description="Edit task status"
+)
 def send_edit_to_celery(
     user_uuid: UUID,
     image_uuid: UUID,
@@ -82,13 +94,14 @@ def send_edit_to_celery(
     db: Session = Depends(get_db),
     user: User = Depends(get_user_or_401),
 ):
+    """Invoke image edit task"""
     image = image_crud.get_image_by_uuid(image_uuid, db)
     if user_uuid != user.uuid or image.user != user:
         raise HTTPException(status_code=403)
 
     new_filename = Path(settings.file_storage) / "edited" / f"{uuid4()}.png"
     # create directory if doesn't exist, ignore errors
-    new_filename.parent.mkdir(parents=True, exist_ok=True)  
+    new_filename.parent.mkdir(parents=True, exist_ok=True)
     # add original image info to transform object
     internal_transform = schemas.TransformInternal(**transform.dict(), original_image_id=image.id)
     task = edit_image.delay(

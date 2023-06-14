@@ -29,6 +29,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def root(db: Session = Depends(get_db)):
     return "Hello!"

@@ -12,7 +12,7 @@ from ..dependencies.auth import get_user_or_401
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("/", tags=["auth"])
 def get_users(
     db: Session = Depends(get_db), user: schemas.UserInDB = Depends(get_user_or_401)
 ) -> list[schemas.UserResponse]:
@@ -26,7 +26,7 @@ def get_users(
         return user
 
 
-@router.get("/{username}")
+@router.get("/{username}", tags=["auth"])
 def get_user(
     username: str, db: Session = Depends(get_db), user: schemas.UserInDB = Depends(get_user_or_401)
 ) -> schemas.UserResponse:
@@ -37,13 +37,13 @@ def get_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
-@router.post("/")
+@router.post("/", tags=["auth"])
 def create_user(user: schemas.UserForm, db: Session = Depends(get_db)) -> schemas.UserResponse:
     new_user = user_crud.create_user(user, db)
     return new_user
 
 
-@router.patch("/{username}")
+@router.patch("/{username}", tags=["auth"])
 def update_user(
     username: str,
     new_data: schemas.UserUpdateForm = Body(),
@@ -63,7 +63,7 @@ def update_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
-@router.delete("/{username}")
+@router.delete("/{username}", tags=["auth"])
 def delete_user(
     username: str, db: Session = Depends(get_db), user: schemas.UserInDB = Depends(get_user_or_401)
 ) -> None:

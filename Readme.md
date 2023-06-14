@@ -26,3 +26,8 @@ edit image:
 returns url to:
 /images/edited/<task_uuid>
 ```
+
+TODO:
+*tagi
+*response cody w dekoratorze, summary, description 
+*check(https://fastapi.tiangolo.com/tutorial/path-operation-configuration/)

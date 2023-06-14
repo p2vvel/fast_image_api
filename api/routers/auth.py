@@ -10,7 +10,7 @@ from ..cruds import login as auth_crud
 router = APIRouter()
 
 
-@router.post("/login")
+@router.post("/login", tags=["auth"])
 def login(
     user: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ) -> schemas.Token:

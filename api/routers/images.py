@@ -17,7 +17,7 @@ from ..config import settings
 router = APIRouter()
 
 
-@router.post("/")
+@router.post("/", tags=["images"], )
 def upload_image(
     file: UploadFile, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ) -> schemas.OutputImage:
@@ -25,7 +25,7 @@ def upload_image(
     return created_image
 
 
-@router.get("/")
+@router.get("/", tags=["images"])
 def get_images(
     db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ) -> list[schemas.OutputImage]:
@@ -33,7 +33,7 @@ def get_images(
     return images
 
 
-@router.get("/status/{task_uuid}")
+@router.get("/status/{task_uuid}", tags=["images"])
 def get_edit_status(
     task_uuid: UUID, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ):
@@ -53,7 +53,7 @@ def get_edit_status(
 
 # TODO: implement xsendfile - https://www.nginx.com/resources/wiki/start/topics/examples/xsendfile/
 # temporary workaround for serving images below:
-@router.get("/{user_uuid}/{image_uuid}")
+@router.get("/{user_uuid}/{image_uuid}", tags=["images"])
 def get_original_image(
     user_uuid: UUID,
     image_uuid: UUID,
@@ -67,13 +67,14 @@ def get_original_image(
     return FileResponse(image.path)
 
 
+# TODO: implement
 def get_edited_image(
     edit_uuid: UUID, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ) -> FileResponse:
     pass
 
 
-@router.get("/{user_uuid}/{image_uuid}/transform")
+@router.get("/{user_uuid}/{image_uuid}/transform", tags=["images"])
 def send_edit_to_celery(
     user_uuid: UUID,
     image_uuid: UUID,

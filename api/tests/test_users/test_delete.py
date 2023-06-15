@@ -19,7 +19,7 @@ def test_user_delete(clean_db):
 
         assert len(all_users()) == 2  # 2 users in db
         response = client.delete("/users/pawel", headers=auth_header("pawel"))
-        assert response.status_code == 200
+        assert response.status_code == 204
         assert len(all_users()) == 1  # 1 user in db, 'pawel' has been killed
 
         create_user("pawel")  # create another 'pawel'
@@ -28,8 +28,8 @@ def test_user_delete(clean_db):
 
         # admin can delete everything
         response = client.delete("/users/pawel", headers=auth_header("admin"))
-        assert response.status_code == 200
+        assert response.status_code == 204
         response = client.delete("/users/admin", headers=auth_header("admin"))
-        assert response.status_code == 200
+        assert response.status_code == 204
 
         assert len(all_users()) == 0  # all users have been deleted

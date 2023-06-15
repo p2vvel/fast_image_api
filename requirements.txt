@@ -1,4 +1,4 @@
-fastapi
+fastapi==0.97.0,<0.98.0
 uvicorn[standard]
 passlib[bcrypt]
 pyjwt

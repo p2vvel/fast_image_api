@@ -20,6 +20,8 @@ class Image(Base):
     original_image_id: Mapped[int | None] = mapped_column(ForeignKey("image.id"), default=None)
     original_image: Mapped["Image"] = relationship()  # noqa: F821
 
+    edit_tasks: Mapped[list["EditTask"]] = relationship(back_populates="image")  # noqa: F821
+
     @property
     def url(self) -> str:
         user_uuid = self.user.uuid
@@ -32,3 +34,13 @@ class Image(Base):
 
     def __repr__(self):
         return f"<Image: {self.id}>"
+
+
+class EditTask(Base):
+    __tablename__ = "edit_task"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    uuid: Mapped[UUID] = mapped_column(unique=True, nullable=False, index=True)
+
+    image_id: Mapped[int] = mapped_column(ForeignKey("image.id"))
+    image: Mapped["Image"] = relationship(back_populates="edit_tasks")  # noqa: F821

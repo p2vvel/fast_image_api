@@ -8,8 +8,7 @@ from ..cruds import image as image_crud
 from ..models import User
 from ..dependencies.auth import get_user_or_401
 from uuid import UUID, uuid4
-from api.tasks.images import edit_image, app as celery_app
-from celery.result import AsyncResult
+from api.tasks.images import edit_image
 from pathlib import Path
 from ..config import settings
 from ..utils.images import get_image_file
@@ -45,33 +44,31 @@ def get_images(
 def get_edit_status(
     task_uuid: UUID, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ):
-    result = image_crud.get_edit_task_by_uuid(task_uuid)
-    # result = AsyncResult(str(task_uuid), app=celery_app)
-    # check permissions
-    original_image_id = result.kwargs["transform"].original_image_id
-    original_image = image_crud.get_image_by_id(original_image_id, db)
-    # check if user is owner of original image
-    if original_image.user != user:
+    task_celery = image_crud.get_celery_task(task_uuid)
+    task_db = image_crud.get_edit_task(task_uuid, db)
+    if task_db.image.user != user:
         raise HTTPException(status_code=403)
 
     return {
-        "status": result.status,
-        "result": f"{result.result}" if result.status == "SUCCESS" else None,
-        "file": f"/edited/{task_uuid}"
+        "status": task_celery.status,
+        "result": f"{task_celery.result}" if task_celery.status == "SUCCESS" else None,
+        "file": f"/edited/{task_uuid}",
     }
 
 
-# TODO: implement
 @router.get("/edited/{edit_uuid}", tags=["images"], response_description="Edited image file")
 def get_edited_image(
     edit_uuid: UUID, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ) -> FileResponse:
-    result = image_crud.get_edit_task_by_uuid(edit_uuid)
+    edit_task = image_crud.get_edit_task(edit_uuid, db)
+    image = edit_task.image
+    if image.user != user:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    result = image_crud.get_celery_task(edit_uuid)
     return get_image_file(result.result)
 
 
-# TODO: implement xsendfile - https://www.nginx.com/resources/wiki/start/topics/examples/xsendfile/
-# temporary workaround for serving images below:
 @router.get(
     "/{user_uuid}/{image_uuid}", tags=["images"], response_description="Uploaded image file"
 )
@@ -90,7 +87,9 @@ def get_original_image(
 
 
 @router.get(
-    "/{user_uuid}/{image_uuid}/transform", tags=["images"], response_description="Edit task status"
+    "/{user_uuid}/{image_uuid}/transform",
+    tags=["images"],
+    response_description="Image edit task status",
 )
 def send_edit_to_celery(
     user_uuid: UUID,
@@ -101,7 +100,7 @@ def send_edit_to_celery(
 ):
     """Invoke image edit task"""
     image = image_crud.get_image_by_uuid(image_uuid, db)
-    if user_uuid != user.uuid or image.user != user:
+    if image.user != user:
         raise HTTPException(status_code=403)
 
     new_filename = Path(settings.file_storage) / "edited" / f"{uuid4()}.png"
@@ -113,4 +112,5 @@ def send_edit_to_celery(
         input_file=image.path, output_file=new_filename, transform=internal_transform
     )
 
-    return {"task_id": task.id, "status_url": f"{settings.image_url}/status/{task.id}"}
+    task_db = image_crud.create_edit_task(uuid=UUID(task.id), image=image, db=db)
+    return {"task_id": task_db.id, "status_url": f"{settings.image_url}/status/{task_db.uuid}"}

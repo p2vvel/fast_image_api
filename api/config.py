@@ -12,6 +12,8 @@ class SettingsStorage(BaseSettings):
     test_db_url: str = "sqlite:///./test_db.sqlite"
     image_url: str = "/images"
 
+    environment: str = "dev"    # "prod" for production, "dev" for development
+
     class Config:
         env_file = ".env"
 

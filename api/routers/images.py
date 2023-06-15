@@ -12,6 +12,7 @@ from api.tasks.images import edit_image, app as celery_app
 from celery.result import AsyncResult
 from pathlib import Path
 from ..config import settings
+from ..utils.images import get_image_file
 
 
 router = APIRouter()
@@ -44,7 +45,8 @@ def get_images(
 def get_edit_status(
     task_uuid: UUID, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ):
-    result = AsyncResult(str(task_uuid), app=celery_app)
+    result = image_crud.get_edit_task_by_uuid(task_uuid)
+    # result = AsyncResult(str(task_uuid), app=celery_app)
     # check permissions
     original_image_id = result.kwargs["transform"].original_image_id
     original_image = image_crud.get_image_by_id(original_image_id, db)
@@ -55,7 +57,17 @@ def get_edit_status(
     return {
         "status": result.status,
         "result": f"{result.result}" if result.status == "SUCCESS" else None,
+        "file": f"/edited/{task_uuid}"
     }
+
+
+# TODO: implement
+@router.get("/edited/{edit_uuid}", tags=["images"], response_description="Edited image file")
+def get_edited_image(
+    edit_uuid: UUID, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
+) -> FileResponse:
+    result = image_crud.get_edit_task_by_uuid(edit_uuid)
+    return get_image_file(result.result)
 
 
 # TODO: implement xsendfile - https://www.nginx.com/resources/wiki/start/topics/examples/xsendfile/
@@ -74,14 +86,7 @@ def get_original_image(
     if user_uuid != user.uuid or image.user != user:
         raise HTTPException(status_code=403)
 
-    return FileResponse(image.path)
-
-
-# TODO: implement
-def get_edited_image(
-    edit_uuid: UUID, db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
-) -> FileResponse:
-    pass
+    return get_image_file(image.path)
 
 
 @router.get(

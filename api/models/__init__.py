@@ -1,2 +1,2 @@
 from .user import User
-from .image import Image
+from .image import Image, EditTask

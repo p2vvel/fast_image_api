@@ -17,7 +17,7 @@ def test_permissions(clean_db):  # noqa: F811
 
         file = {"file": open(TEST_IMAGES_PATH / "avatar1.png", "rb")}
         response = client.post("/images", headers=auth_header("pawel"), files=file)
-        assert response.status_code == 200  # logged user can upload image
+        assert response.status_code == 201  # logged user can upload image
 
         response = client.post("/images", files=file)
         assert response.status_code == 401  # anonymous user cannot upload image
@@ -29,4 +29,4 @@ def test_upload_save(clean_db):  # noqa: F811
 
         file = {"file": open(TEST_IMAGES_PATH / "avatar1.png", "rb")}
         response = client.post("/images", headers=auth_header("pawel"), files=file)
-        assert response.status_code == 200  # logged user can upload image
+        assert response.status_code == 201  # logged user can upload image

@@ -5,6 +5,8 @@ from uuid import UUID, uuid4
 from sqlalchemy import select
 from .. import models
 from ..config import settings
+from celery.result import AsyncResult
+from ..tasks.images import app as celery_app
 
 
 def get_images(db: Session) -> list[models.Image]:
@@ -39,3 +41,24 @@ def get_image_by_id(image_id: int, db: Session) -> models.Image:
 def get_image_by_uuid(image_uuid: UUID, db: Session) -> models.Image:
     image = db.scalar(select(models.Image).where(models.Image.uuid == image_uuid))
     return image
+
+
+def get_celery_task(task_uuid: UUID) -> any:
+    '''Get celery task object'''
+    task = AsyncResult(str(task_uuid), app=celery_app)
+    return task
+
+
+def get_edit_task(task_uuid: UUID, db: Session) -> models.EditTask:
+    '''Get edit task object from database'''
+    task = db.scalar(select(models.EditTask).where(models.EditTask.uuid == task_uuid))
+    return task
+
+
+def create_edit_task(uuid: UUID, image: models.Image, db: Session) -> models.EditTask:
+    # new_task = models.EditTask(id=None, image=image)
+    new_task = models.EditTask(uuid=uuid, image=image)
+    db.add(new_task)
+    db.commit()
+    db.refresh(new_task)
+    return new_task

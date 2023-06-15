@@ -11,7 +11,8 @@ class SettingsStorage(BaseSettings):
     secret: str = "d9b17b791db4a785cfaf89a02f5eb3b4459670d74d68be3900ce88de50a33e68"
     test_db_url: str = "sqlite:///./test_db.sqlite"
     image_url: str = "/images"
-    msg: str = "Default hello world!"
+
+    environment: str = "dev"    # "prod" for production, "dev" for development
 
     class Config:
         env_file = ".env"

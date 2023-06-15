@@ -17,7 +17,7 @@ def test_user_create(clean_db):
 
         input = {"username": "pawel", "password": "Dupa1234."}
         response = client.post("/users", json=input)
-        assert response.status_code == 200
+        assert response.status_code == 201
 
         json = response.json()
         assert set(json.keys()) == {
@@ -48,7 +48,7 @@ def test_create_user_wrong_input(clean_db):
     with TestClient(app) as client:
         # normal user creation
         response = client.post("/users", json={"username": "pawel", "password": "Dupa1234."})
-        assert response.status_code == 200
+        assert response.status_code == 201
 
         # create duplicated username
         response = client.post("/users", json={"username": "pawel", "password": "Dupa1234."})

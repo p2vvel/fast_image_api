@@ -1,0 +1,8 @@
+.venv/
+.github/
+.idea/
+.vscode/
+images/
+test_images/
+Readme.md
+*.sqlite

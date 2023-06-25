@@ -19,28 +19,17 @@ services:
     build: .
     ports:
       - 8000:8000
-    # command: bash -c "python manage.py migrate && python manage.py collectstatic --no-input && python manage.py createsuperuser --no-input && python manage.py loaddata base_tiers.json && python -m gunicorn --bind 0.0.0.0:8000 image_api.wsgi"
-    # environment:
-    #   - SECRET_KEY=${SECRET_KEY}
-    #   - DB_HOST=postgres
-    #   - DB_USER=${DB_USER}
-    #   - DB_PASSWORD=${DB_PASSWORD}
-    #   - DB_NAME=${DB_NAME}
-    #   - DB_PORT=5432
-    #   - REDIS_HOST=redis
-    #   - REDIS_PORT=6379
-    #   - DJANGO_SETTINGS_MODULE=image_api.production
-    #   - DJANGO_SUPERUSER_PASSWORD=${SUPERUSER_PASSWORD}
-    #   - DJANGO_SUPERUSER_USERNAME=${SUPERUSER_NAME}
-    #   - DJANGO_SUPERUSER_EMAIL=${SUPERUSER_NAME}@example.com
-    # depends_on:
-    #   postgres:
-    #     condition: service_healthy
-    #   redis:
-    #     condition: service_started
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --proxy-headers
     volumes:
-      - static:/static/
-      - media:/images/
+      - images:/images/
+  worker:
+    build: .
+    command: celery -A api.tasks.images worker
+    environment:
+      - C_FORCE_ROOT=true
+    volumes:
+      - images:/images/
+
   nginx:
     image: nginx
     ports:
@@ -52,7 +41,5 @@ services:
     depends_on:
       - api
 
-
 volumes:
-  static:
-  media:
+  images:

@@ -31,12 +31,11 @@ def upload_image(
     return created_image
 
 
-# TODO: permissions!
 @router.get("/", tags=["images"], response_description="List of images")
 def get_images(
     db: Session = Depends(get_db), user: User = Depends(get_user_or_401)
 ) -> list[schemas.OutputImage]:
-    images = image_crud.get_images(db)
+    images = image_crud.get_user_images(user, db)
     return images
 
 

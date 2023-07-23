@@ -9,9 +9,14 @@ from celery.result import AsyncResult
 from ..tasks.images import app as celery_app
 
 
-def get_images(db: Session) -> list[models.Image]:
-    all_images = db.query(models.Image).all()
+def get_all_images(db: Session) -> list[models.Image]:
+    all_images = db.scalars(select(models.Image)).all()
     return all_images
+
+
+def get_user_images(user: models.User, db: Session) -> list[models.Image]:
+    images = db.scalars(select(models.Image).where(models.Image.user == user)).all()
+    return images
 
 
 def create_image(image: UploadFile, user: models.User, db: Session) -> models.Image:

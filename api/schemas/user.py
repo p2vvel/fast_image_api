@@ -29,7 +29,7 @@ class UserBase(BaseModel):
         if len(value) > 20:
             raise ValueError("Username too long (max 20 characters)")
         if re.match(r"^[a-zA-Z-_\d]+$", value) is None:
-            raise ValueError("Username can only contain letters, numbers, dashes ('-') and underscores ('_')")
+            raise ValueError("Username can only contain letters, numbers, dashes ('-') and underscores ('_')")  # noqa: E501
         return value
 
     class Config:

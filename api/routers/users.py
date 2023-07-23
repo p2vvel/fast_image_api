@@ -38,7 +38,7 @@ def get_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
-@router.post("/", tags=["auth"], status_code=status.HTTP_201_CREATED, response_description="Created user")
+@router.post("/", tags=["auth"], status_code=status.HTTP_201_CREATED, response_description="Created user")  # noqa: #501
 def create_user(user: schemas.UserForm, db: Session = Depends(get_db)) -> schemas.UserResponse:
     '''Create new user'''
     new_user = user_crud.create_user(user, db)

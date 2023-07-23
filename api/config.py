@@ -12,10 +12,8 @@ class SettingsStorage(BaseSettings):
     test_db_url: str = "sqlite:///./test_db.sqlite"
     image_url: str = "/images"
 
-    celery_broker: str = "redis://"
-    celery_backend: str = "redis://"
-
-    environment: str = "dev"    # "prod" for production, "dev" for development
+    xsend: bool = False
+    xsend_path: str = "/protected"
 
     class Config:
         env_file = ".env"

@@ -5,7 +5,6 @@ from ..config import settings
 from pathlib import Path
 
 
-# TODO: implement xsendfile - https://www.nginx.com/resources/wiki/start/topics/examples/xsendfile/
 def get_image_file(image_path: str) -> FileResponse:
     if settings.xsend:
         # Xsendfile implementation

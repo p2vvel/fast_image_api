@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from ..utils.crypto import oauth_scheme
 from ..cruds.user import get_user_by_username
 from .. import models
-from ..config import settings 
+from ..config import settings
 from ..database import get_db
 import jwt
 

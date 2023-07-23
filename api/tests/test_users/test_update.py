@@ -14,7 +14,7 @@ app.dependency_overrides[get_user] = override_get_user
 
 
 def test_standard_user_update(clean_db):
-    with TestClient(app) as client:    
+    with TestClient(app) as client:
         db = next(override_get_db())
         username = "pawel"
         create_user(username, "Dupa1234.")
@@ -129,7 +129,7 @@ def test_updated_at_change(clean_db):
 
         time.sleep(1)  # wait 1 second to show difference
 
-        response = client.patch("/users/pawel", headers=auth_header("pawel"), json={"password": "Dupa12345."})
+        response = client.patch("/users/pawel", headers=auth_header("pawel"), json={"password": "Dupa12345."})  # noqa: E501
         assert response.status_code == 200
         new_updated_at = datetime.datetime.fromisoformat(response.json().get("updated_at"))
 

@@ -15,7 +15,8 @@ class SettingsStorage(BaseSettings):
     celery_broker: str = "redis://"
     celery_backend: str = "redis://"
 
-    environment: str = "dev"    # "prod" for production, "dev" for development
+    xsend: bool = False
+    xsend_path: str = "/protected"
 
     class Config:
         env_file = ".env"

@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from enum import Enum
-from uuid import UUID
 
 
 class Rotation(int, Enum):
@@ -31,7 +30,7 @@ class Size(BaseModel):
     y: int = 0
 
 
-class Transform(BaseModel): 
+class Transform(BaseModel):
     rotation: Rotation = Rotation.NONE
     flip: Flip = Flip.NONE
     color: Color = Color.NONE

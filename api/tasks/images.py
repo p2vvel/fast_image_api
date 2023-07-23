@@ -5,8 +5,10 @@ from .colors import change_colors
 from .rotation import change_rotation
 from .orientation import change_orientation
 from .size import change_size
-from ..config import settings
+from api.config import settings
 
+
+app = Celery("tasks", broker=settings.celery_broker, backend=settings.celery_backend)
 app = Celery("tasks", broker=settings.celery_broker, backend=settings.celery_backend)
 app.conf.update(
     task_serializer='pickle',

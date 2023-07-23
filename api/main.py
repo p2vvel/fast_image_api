@@ -6,7 +6,6 @@ from .database import Base, engine, get_db
 from .routers import auth_router, images_router, users_router
 from .config import settings
 from contextlib import asynccontextmanager
-from .config import settings
 
 
 @asynccontextmanager

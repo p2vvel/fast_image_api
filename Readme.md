@@ -9,6 +9,7 @@ My main goal was to rewrite my old Django project ([image_api](https://github.co
 * ability to upload an image
 * ability to download original image
 * ability to edit image and download edited version
+* images privacy provided by self-implemented XsendFile (and of course configured in nginx) - other users can't see your private pictures
 
 <br/>
 
@@ -42,5 +43,6 @@ API will be accessible at http://localhost, open http://localhost/docs or http:/
 <br/>
 
 ### TODO (things that could be improved):
+* Alembic migrations (probably the most important thing left to do here)
 * writing more tests would be a good idea, coverage could be better 😅
 * add more editing options

@@ -10,6 +10,10 @@ from api.config import settings
 
 app = Celery("tasks", broker=settings.celery_broker, backend=settings.celery_backend)
 app = Celery("tasks", broker=settings.celery_broker, backend=settings.celery_backend)
+# WARNING: 
+# It might not be the best idea to send pickled data, but I decided to limit database queries
+# Passing tasks and results might be done by sending only IDs of arguments/results saved in DB,
+# but I decided to leave it as it is - project made for learning purposes
 app.conf.update(
     task_serializer='pickle',
     result_serializer='pickle',

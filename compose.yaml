@@ -3,8 +3,6 @@ version: '3.9'
 services:
   redis:
     image: redis
-    ports:
-      - 6379:6379
   
   # postgres:
   #   image: postgres
@@ -19,8 +17,8 @@ services:
   #     retries: 5
   api:
     build: .
-    ports:
-      - 8000:8000
+    # ports:
+      # - 8000:8000
     command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --proxy-headers
     environment:
       - XSEND=1
@@ -59,5 +57,4 @@ services:
       - api
 
 volumes:
-  images:
   images:

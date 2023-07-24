@@ -4,30 +4,32 @@ services:
   redis:
     image: redis
   
-  # postgres:
-  #   image: postgres
-  #   environment:
-  #     - POSTGRES_USER=${DB_USER}
-  #     - POSTGRES_PASSWORD=${DB_PASSWORD}
-  #     - POSTGRES_DB=${DB_NAME}
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready", "-d", "${DB_NAME}", "-U", "${DB_USER}"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  postgres:
+    image: postgres
+    environment:
+    # those envs should be moved to .env file, but I decided to leave them there for easier deployment
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=image_api_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "${DB_NAME}", "-U", "${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   api:
     build: .
-    # ports:
-      # - 8000:8000
     command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --proxy-headers
     environment:
       - XSEND=1
       - FILE_STORAGE=/images/
       - CELERY_BACKEND=redis://redis
       - CELERY_BROKER=redis://redis
-    # depends_on:
-    #   redis:
-    #     condition: service_started
+      - DB_URL=postgresql+psycopg2://user:password@postgres:5432/image_api_db   # same story as above (should be moved to .env)
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     volumes:
       - images:/images/
    
@@ -39,9 +41,9 @@ services:
       - FILE_STORAGE=/images/
       - CELERY_BACKEND=redis://redis
       - CELERY_BROKER=redis://redis
-      - C_FORCE_ROOT=1
+      - C_FORCE_ROOT=1    # necessary to run in container (as 'root' user)
     depends_on:
-      redis:
+      api:
         condition: service_started
     volumes:
       - images:/images/
